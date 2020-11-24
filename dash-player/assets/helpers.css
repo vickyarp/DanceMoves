@@ -1,0 +1,9 @@
+.dash-spreadsheet .row {
+    flex-wrap: nowrap !important;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.dash-spreadsheet .dash-freeze-left {
+    max-width: 100%;
+}
