@@ -7,6 +7,7 @@ from PIL import Image
 
 DATA_PATH = './assets/keypoints/'
 THUMBNAIL_PATH = './assets/thumbnails/'
+POSE_PATH = './assets/search_query'
 
 DATASET_VIDEOS = [
     'contemp1',
@@ -283,3 +284,9 @@ BODYPART_THUMBS_SMALL = [
     '![myImage-29](assets/thumbnails/small/torso_to_left_hip.png)'
 ]
 
+POSES_DICT = {
+    'qsearch-1': {'src': 'TB_S_FB_frame43.png', 'data':'TB_S_FB_000000000043_keypoints.json'},
+    'qsearch-2': {'src': 'PC_F_frame_72.png', 'data': 'PC_F_000000000072_keypoints.json'},
+    'qsearch-3': {'src': 'SYN_K_frame22.png', 'data': 'SYN_K_000000000022_keypoints.json'},
+
+}

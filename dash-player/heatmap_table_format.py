@@ -72,7 +72,7 @@ def heatmap_table_format(df, n_bins=4, columns='all'):
 
 def highlight_current_frame(frame_no):
     header_styles = []
-    header_styles.append({ 'if': { 'column_id': '(\'Frame: \', {})'.format(frame_no), 'header_index': 0 }, 'color': 'white', 'backgroundColor': 'black' },)
+    header_styles.append({ 'if': { 'column_id': 'Frame:{}'.format(frame_no), 'header_index': 0 }, 'color': 'white', 'backgroundColor': 'black' },)
     return header_styles
 
 tooltip_angles =[

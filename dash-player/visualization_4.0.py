@@ -13,10 +13,11 @@ import numpy as np
 import pandas as pd
 from datatable import render_datatable
 from modal import modal
-from utils import COLORS, PAIRS_RENDER, DATASET_VIDEOS, BODYPART_THUMBS
+from secondPage import secondPage
+from utils import COLORS, PAIRS_RENDER, DATASET_VIDEOS, BODYPART_THUMBS, POSES_DICT
 from keypoint_frames import get_keypoints
 from keypoint_frames import create_df
-from overall_video_similarity import create_angles, overall_similarity
+from overall_video_similarity import create_angles, overall_similarity, pose_query
 from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
 from clustering2 import get_dendogram
 
@@ -55,12 +56,13 @@ def create_coordinate_df(points_with_confidence):
 #     video_frames.append(df)
 
 app.layout = html.Div([
-    html.H2( 'Visual Analysis of Dance Moves', style={'text-align': 'center'}),
+    html.H2('Visual Analysis of Dance Moves', style={'text-align': 'center'}),
+    dbc.Row([
     html.Div(
         style={
-            'width': '19%',
+            'width': '20%',
             'float': 'left',
-            'margin': '1% 2% 1% 0%'
+            'margin': '1% 2% 2% 1%'
         },
         children=[
             dcc.Store(id='memory-output1'),
@@ -78,7 +80,7 @@ app.layout = html.Div([
             dcc.Dropdown(
                 id='memory-video1',
                 options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
-                value='TB_F_FB'
+                value='BA_R_WA'
             ),
 
             dash_player.DashPlayer(
@@ -123,7 +125,7 @@ app.layout = html.Div([
             ),
 
 
-            html.P("Playback Rate:", style={'margin-top': '25px'}),
+            html.P("Playback Rate:", style={'margin-top': '20px'}),
             dcc.Slider(
                 id='slider-playback-rate',
                 min=0,
@@ -132,7 +134,7 @@ app.layout = html.Div([
                 updatemode='drag',
                 marks={i: str(i) + 'x' for i in
                        [0, 0.25, 0.5, 0.75, 1, 1.5]},
-                value=1
+                value=0.25
             ),
 
             # html.P("Update Interval for Current Time:", style={'margin-top': '30px'}),
@@ -150,7 +152,7 @@ app.layout = html.Div([
             dcc.Dropdown(
                 id='memory-video2',
                 options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
-                value='TB_F_FB'
+                value='BA_R_NA'
             ),
             dash_player.DashPlayer(
                 id='video-player2',
@@ -179,9 +181,9 @@ app.layout = html.Div([
 
     html.Div(
         style={
-            'width': '48%',
+            'width': '47%',
             'float': 'left',
-            'margin': '5% 0% 0% 1%'
+            'margin': '2% 0% 0% 1%'
         },
         children=[
             html.Div(style={'min-height': '70vh'}, children=[
@@ -207,9 +209,9 @@ app.layout = html.Div([
     ),
     html.Div(
         style={
-            'width': '30%',
+            'width': '29%',
             'float': 'right',
-            'margin': '0% 0% 0% 0%'
+            'margin': '-1% 0% 0% 0%'
 
         },
         children=[
@@ -222,12 +224,12 @@ app.layout = html.Div([
                 id = 'graph-im2',
                 style={'height': '50vh'}
             ),
-
-
-
         ]
     ),
+]),
+secondPage()
 ])
+
 @app.callback([Output('memory-table', 'data'),
                Output('memory-output1', 'data'),
                Output('video-player', 'url'),
@@ -556,6 +558,57 @@ def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
+
+### Search Query callbacks
+@app.callback(Output('dif-table', 'children'),
+              [Input('memory-video1', 'value'),
+               Input('qsearch-1', 'n_clicks'),
+               Input('qsearch-2', 'n_clicks'),
+               Input('qsearch-3', 'n_clicks')],
+              )
+def render_dif_table(value, click1, click2, click3):
+    # if not click1 or not click2 or not click3 or not value:
+    #     return dash.no_update
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    print(changed_id)
+    if 'qsearch-1' in changed_id:
+        pose = POSES_DICT['qsearch-1']['data']
+    elif 'qsearch-2' in changed_id:
+        pose = POSES_DICT['qsearch-2']['data']
+    elif 'qsearch-3' in changed_id:
+            pose = POSES_DICT['qsearch-3']['data']
+    else: return dash.no_update
+
+    df_angles_dif = pose_query(value, pose)
+    df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
+    return render_datatable(df_angles_dif, pagesize=12, dif_table='true')
+
+
+# @app.callback(Output('dif-table', 'children[0]'),
+#               [Input('memory-video1', 'value'),
+#                Input('qsearch-2', 'n_clicks')],
+#               )
+# def render_dif_table(value, click):
+#     if not click or not value:
+#         return dash.no_update
+#     else:
+#         pose = POSES_DICT['qsearch-2']['data']
+#         df_angles_dif = pose_query(value, pose)
+#         df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
+#         return render_datatable(df_angles_dif, pagesize=12)
+#
+# @app.callback(Output('dif-table', 'children[1]'),
+#               [Input('memory-video1', 'value'),
+#                Input('qsearch-3', 'n_clicks')],
+#               )
+# def render_dif_table(value, click):
+#     if not click or not value:
+#         return dash.no_update
+#     else:
+#         pose = POSES_DICT['qsearch-3']['data']
+#         df_angles_dif = pose_query(value, pose)
+#         df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
+#         return render_datatable(df_angles_dif, pagesize=12)
 
 if __name__ == '__main__':
     app.run_server(debug=True)

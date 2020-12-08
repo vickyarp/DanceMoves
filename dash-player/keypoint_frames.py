@@ -327,12 +327,17 @@ def create_df(video):
         bodyvector1 = compute_angle_vector(data)
         new_bodyvector = pd.DataFrame(bodyvector1)
 
-        newDF['Frame: ',i]=new_bodyvector
-        # newDF[i] = new_bodyvector #####HERE CHANGED FOR COLUMN VISUALIZATION
+        # newDF['Frame: ',i]=new_bodyvector
+        newDF[i] = new_bodyvector #####HERE CHANGED FOR COLUMN VISUALIZATION
         i += 1
         # print(bodyvector1)
     # newDF = newDF.fillna(0)
-    newDF = newDF.rename(index=BODYPART_INDEX)
+
+    ## rename columns and index
+    columns = {}
+    for i in range(len(newDF.columns)):
+        columns[i] = 'Frame:{}'.format(i)
+    newDF = newDF.rename(columns=columns, index=BODYPART_INDEX)
 
     return newDF.reset_index()
 
