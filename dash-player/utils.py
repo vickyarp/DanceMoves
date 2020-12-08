@@ -251,3 +251,35 @@ BODYPART_THUMBS = [
     '![myImage-29](assets/thumbnails/torso_to_left_hip.png)'
     ]
 
+BODYPART_THUMBS_SMALL = [
+    '![myImage-1](assets/thumbnails/small/nose_to_neck_to_left_shoulder.png)',
+    '![myImage-2](assets/thumbnails/small/nose_to_neck_to_right_shoulder.png)',
+    '![myImage-3](assets/thumbnails/small/left_shoulder_to_right_shoulder.png)',
+    '![myImage-4](assets/thumbnails/small/left_shoulder_to_left_upper_arm.png)',
+    '![myImage-5](assets/thumbnails/small/left_lower_arm_to_left_upper_arm.png)',
+    '![myImage-6](assets/thumbnails/small/right_upper_arm_to_right_shoulder.png)',
+    '![myImage-7](assets/thumbnails/small/right_upper_arm_to_right_lower_arm.png)',
+    '![myImage-8](assets/thumbnails/small/left_eye_to_nose_to_left_ear_to_eye.png)',
+    '![myImage-9](assets/thumbnails/small/left_eye_to_nose_to_neck.png)',
+    '![myImage-10](assets/thumbnails/small/nose_to_neck_to_right_eye_to_nose.png)',
+    '![myImage-11](assets/thumbnails/small/left_eye_to_nose_to_right_ear_to_eye.png)',
+    '![myImage-12](assets/thumbnails/small/right_eye_to_nose_to_right_ear_to_eye.png)',
+    '![myImage-13](assets/thumbnails/small/right_hip_to_right_upper_leg.png)',
+    '![myImage-14](assets/thumbnails/small/right_upper_leg_to_right_lower_leg.png)',
+    '![myImage-15](assets/thumbnails/small/left_hip_to_left_upper_leg.png)',
+    '![myImage-16](assets/thumbnails/small/left_upper_leg_to_left_lower_leg.png)',
+    '![myImage-17](assets/thumbnails/small/left_lower_leg_left_ankle_to_heel.png)',
+    '![myImage-18](assets/thumbnails/small/right_lower_leg_to_right_ankle_to_heel.png)',
+    '![myImage-19](assets/thumbnails/small/right_foot_to_right_toes.png)',
+    '![myImage-20](assets/thumbnails/small/right_foot_to_right_lower_leg.png)',
+    '![myImage-21](assets/thumbnails/small/right_foot_to_right_ankle_to_heel.png)',
+    '![myImage-22](assets/thumbnails/small/left_foot_to_left_lower_leg.png)',
+    '![myImage-23](assets/thumbnails/small/left_foot_to_left_ankle_to_heel.png)',
+    '![myImage-24](assets/thumbnails/small/left_foot_to_left_toes.png)',
+    '![myImage-25](assets/thumbnails/small/torso_to_right_shoulder.png)',
+    '![myImage-26](assets/thumbnails/small/torso_to_left_shoulder.png)',
+    '![myImage-27](assets/thumbnails/small/torso_to_nose_to_neck.png)',
+    '![myImage-28](assets/thumbnails/small/torso_to_right_hip.png)',
+    '![myImage-29](assets/thumbnails/small/torso_to_left_hip.png)'
+]
+

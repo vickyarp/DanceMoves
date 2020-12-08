@@ -7,3 +7,7 @@
 .dash-spreadsheet .dash-freeze-left {
     max-width: 100%;
 }
+
+#table-tab2 p {
+    margin: 0;
+}

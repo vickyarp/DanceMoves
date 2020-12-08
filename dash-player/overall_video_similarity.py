@@ -5,7 +5,7 @@ import pandas as pd
 import os
 from tslearn.metrics import dtw_path
 from utils import DATA_PATH
-
+from missingpy import MissForest
 
 # %%
 #
@@ -162,6 +162,11 @@ def compute_angle(vector1, vector2):
 
 # create a vector with all angles
 def compute_angle_vector(data):
+    ############################################################################### impute
+    # data[data == 0] = np.nan
+    # imputer = MissForest()
+    # data = imputer.fit_transform(data)
+    ######################################################
     x = create_x_coordicate(data)
     y = create_y_coordicate(data)
 

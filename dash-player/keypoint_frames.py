@@ -1,6 +1,6 @@
 import os
 import json
-# import cv2
+import cv2
 json.encoder.FLOAT_REPR = lambda o: format(o, '.3f')
 import numpy as np
 import pandas as pd
@@ -22,6 +22,16 @@ from utils import DATA_PATH, BODYPART_INDEX
 #
 #     cap.release()
 #     return timestamps
+
+def export_frames_from_video(video='s'):
+    vidcap = cv2.VideoCapture('./assets/{}'.format(video))
+    success, image = vidcap.read()
+    count = 0
+    while success:
+        cv2.imwrite("./assets/frames/{}_frame{}.jpg".format(video, count), image)  # save frame as JPEG file
+        success, image = vidcap.read()
+        print('Read new frame: {}'.format(count), success)
+        count += 1
 
 
 def read_keypoints(data):
@@ -204,8 +214,8 @@ def create_df(video):
             unit_vector_2 = vector2 / np.linalg.norm(vector2)
             dot_product = np.dot(unit_vector_1, unit_vector_2)
             angle = np.arccos(dot_product)
-            # return round(degree(angle), 2) ##changed by art
-            return round(math.cos(angle), 2)
+            return round(degree(angle), 2) ##changed by art
+            # return round(math.cos(angle), 2)
 
         # create a vector with all angles
         def compute_angle_vector(data):
@@ -321,7 +331,7 @@ def create_df(video):
         # newDF[i] = new_bodyvector #####HERE CHANGED FOR COLUMN VISUALIZATION
         i += 1
         # print(bodyvector1)
-    newDF = newDF.fillna(0)
+    # newDF = newDF.fillna(0)
     newDF = newDF.rename(index=BODYPART_INDEX)
 
     return newDF.reset_index()

@@ -70,6 +70,11 @@ def heatmap_table_format(df, n_bins=4, columns='all'):
         )
     return (styles, html.Div(legend, style={'padding': '5px 0 5px 0'}))
 
+def highlight_current_frame(frame_no):
+    header_styles = []
+    header_styles.append({ 'if': { 'column_id': '(\'Frame: \', {})'.format(frame_no), 'header_index': 0 }, 'color': 'white', 'backgroundColor': 'black' },)
+    return header_styles
+
 tooltip_angles =[
         {
             'angles': 'nose_to_neck_to_left_shoulder',
@@ -157,5 +162,95 @@ tooltip_angles =[
         },
         {
             'angles': 'torso_to_left_hip',
+        },
+    ]
+
+tooltip_angles_small =[
+        {
+            'angles_small': 'nose_to_neck_to_left_shoulder',
+        },
+        {
+            'angles_small': 'nose_to_neck_to_right_shoulder',
+        },
+        {
+            'angles_small': 'left_shoulder_to_right_shoulder',
+        },
+        {
+            'angles_small': 'left_shoulder_to_left_upper_arm',
+        },
+        {
+            'angles_small': 'left_lower_arm_to_left_upper_arm',
+        },
+        {
+            'angles_small': 'right_upper_arm_to_right_shoulder',
+        },
+        {
+            'angles_small': 'right_upper_arm_to_right_lower_arm',
+        },
+        {
+            'angles_small': 'left_eye_to_nose_to_left_ear_to_eye',
+        },
+        {
+            'angles_small': 'left_eye_to_nose_to_neck',
+        },
+        {
+            'angles_small': 'nose_to_neck_to_right_eye_to_nose',
+        },
+        {
+            'angles_small': 'left_eye_to_nose_to_right_ear_to_eye',
+        },
+        {
+            'angles_small': 'right_eye_to_nose_to_right_ear_to_eye',
+        },
+        {
+            'angles_small': 'right_hip_to_right_upper_leg',
+        },
+        {
+            'angles_small': 'right_upper_leg_to_right_lower_leg',
+        },
+        {
+            'angles_small': 'left_hip_to_left_upper_leg',
+        },
+        {
+            'angles_small': 'left_upper_leg_to_left_lower_leg',
+        },
+        {
+            'angles_small': 'left_lower_leg_left_ankle_to_heel',
+        },
+        {
+            'angles_small': 'right_lower_leg_to_right_ankle_to_heel',
+        },
+        {
+            'angles_small': 'right_foot_to_right_toes',
+        },
+        {
+            'angles_small': 'right_foot_to_right_lower_leg',
+        },
+        {
+            'angles_small': 'right_foot_to_right_ankle_to_heel',
+        },
+        {
+            'angles_small': 'left_foot_to_left_lower_leg',
+        },
+        {
+            'angles_small': 'left_foot_to_left_ankle_to_heel',
+        },
+        {
+            'angles_small': 'left_foot_to_left_toes',
+        },
+        {
+            'angles_small': 'torso_to_right_shoulder',
+        },
+        {
+            'angles_small': 'torso_to_left_shoulder',
+        },
+        {
+            'angles_small': 'torso_to_nose_to_neck',
+        },
+        {
+            'angles_small': 'torso_to_right_hip',
+        },
+        {
+            'angles_small': 'torso_to_left_hip',
         },
     ]
