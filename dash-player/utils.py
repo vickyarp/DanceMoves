@@ -178,6 +178,44 @@ BODYPART_INDEX = {
     28: 'torso_to_left_hip'
 }
 
+BODYPART_INDEX_CANONICAL = {
+    7: 'left_eye_to_nose_to_left_ear_to_eye',
+    8: 'left_eye_to_nose_to_neck',
+    9: 'nose_to_neck_to_right_eye_to_nose',
+    10: 'left_eye_to_nose_to_right_ear_to_eye',
+    11: 'right_eye_to_nose_to_right_ear_to_eye',
+
+    0: 'nose_to_neck_to_left_shoulder',
+    1: 'nose_to_neck_to_right_shoulder',
+    2: 'left_shoulder_to_right_shoulder',
+
+    3: 'left_shoulder_to_left_upper_arm',
+    4: 'left_lower_arm_to_left_upper_arm',
+    5: 'right_upper_arm_to_right_shoulder',
+    6: 'right_upper_arm_to_right_lower_arm',
+
+    24: 'torso_to_right_shoulder',
+    25: 'torso_to_left_shoulder',
+    26: 'torso_to_nose_to_neck',
+    27: 'torso_to_right_hip',
+    28: 'torso_to_left_hip',
+
+    12: 'right_hip_to_right_upper_leg',
+    13: 'right_upper_leg_to_right_lower_leg',
+    14: 'left_hip_to_left_upper_leg',
+    15: 'left_upper_leg_to_left_lower_leg',
+    16: 'left_lower_leg_left_ankle_to_heel',
+    17: 'right_lower_leg_to_right_ankle_to_heel',
+
+    18: 'right_foot_to_right_toes',
+    19: 'right_foot_to_right_lower_leg',
+    20: 'right_foot_to_right_ankle_to_heel',
+    21: 'left_foot_to_left_lower_leg',
+    22: 'left_foot_to_left_ankle_to_heel',
+    23: 'left_foot_to_left_toes',
+
+}
+
 def get_thumbnail(path):
     path = '{}{}'.format(THUMBNAIL_PATH, path)
     i = Image.open(path)

@@ -1,7 +1,8 @@
 import dash_table
 from dash_table.Format import Format, Scheme
 import dash_html_components as html
-from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles, tooltip_angles_small
+import dash_bootstrap_components as dbc
+from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
 from utils import BODYPART_THUMBS_SMALL
 
 
@@ -12,6 +13,11 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
     if fullsize == 'true':
         df_angles.insert(0, 'angles_small', BODYPART_THUMBS_SMALL, True)
         return html.Div([
+            html.Div(dbc.ButtonGroup(
+            [dbc.Button("Head"), dbc.Button("Torso"), dbc.Button("Arms"), dbc.Button("Legs"), dbc.Button("Feet")],
+            size="md",
+            className="mr-1",
+            )),
             html.Div(legend, style={'float': 'right'}),
             dash_table.DataTable(
                 id='table-tab2',
@@ -28,7 +34,7 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 style_data={'font-size': '10px', 'text-align': 'center'},
                 style_table={ 'max-width': '100%', 'min-height': '80vh'},
                 style_data_conditional=styles,
-                tooltip_data=tooltip_angles_small,
+                tooltip_data=tooltip_angles(type='angles_small'),
                 tooltip_delay=0,
                 tooltip_duration=None
             ),
@@ -56,7 +62,7 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 page_size=pagesize,
                 style_data_conditional=styles,
                 style_header_conditional=styles_header,
-                tooltip_data=tooltip_angles,
+                tooltip_data=tooltip_angles(),
                 tooltip_delay=0,
                 tooltip_duration=None
             ),
@@ -64,9 +70,20 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
     else:
         return html.Div([
             render_frame_header(frame_no),
+            html.Div(
+                dbc.ButtonGroup(
+                [dbc.Button("Groupby", outline=True, color="secondary", disabled=True),
+                 dbc.Button("Head", id="head-filter-btn"),
+                 dbc.Button("Torso", id="torso-filter-btn"),
+                 dbc.Button("Arms", id="arms-filter-btn"),
+                 dbc.Button("Legs", id="legs-filter-btn"),
+                 dbc.Button("Feet", id="feet-filter-btn")],
+                size="md",
+                className="mr-1",
+            )),
             html.Div(legend, style={'float': 'right'}),
             dash_table.DataTable(
-                id='table-tab2',
+                id='table-tab2-main',
                 columns=[
                             {'name': 'angles', 'id': 'angles', 'presentation': 'markdown'}] + [
                             {
@@ -81,10 +98,11 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                             'p': {'margin-block-start': '0px', 'margin-block-end': '0px'}},
                 style_table={'overflowX': 'scroll', 'max-width': '100%'},
                 style_cell={},
+                row_selectable='multi',
                 page_size=pagesize,
                 style_data_conditional=styles,
                 style_header_conditional=styles_header,
-                tooltip_data=tooltip_angles,
+                tooltip_data=tooltip_angles(),
                 tooltip_delay=0,
                 tooltip_duration=None
             ),
