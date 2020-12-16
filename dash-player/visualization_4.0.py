@@ -14,7 +14,7 @@ import pandas as pd
 from datatable import render_datatable
 from modal import modal
 from secondPage import secondPage
-from utils import COLORS, PAIRS_RENDER, DATASET_VIDEOS, BODYPART_THUMBS, POSES_DICT
+from utils import COLORS, PAIRS_RENDER, DATASET_VIDEOS, BODYPART_THUMBS, POSES_DICT, BODYPART_INDEX_CANONICAL
 from keypoint_frames import get_keypoints
 from keypoint_frames import create_df
 from overall_video_similarity import create_angles, overall_similarity, pose_query
@@ -70,6 +70,7 @@ app.layout = html.Div([
             dcc.Store(id='memory-table'),
             dcc.Store(id='current-time1'),
             dcc.Store(id='current-time2'),
+            dcc.Store(id='memory-frame'),
 
             # dcc.Input(
             #     id='input-url',
@@ -247,6 +248,7 @@ def get_dataframes(video_selected1, video_selected2):
     duration = 5 ##################################################### TODO
     df_angles = create_df(video_selected1)
     df_angles.insert(0, 'angles', BODYPART_THUMBS, True)
+    # df_angles = df_angles.loc[BODYPART_INDEX_CANONICAL, :]
     keypoints1 = get_keypoints(video_selected1)
     data = []
     for frame in keypoints1:
@@ -288,6 +290,16 @@ def update_output(value, duration):
     else:
         return 'Playback range: "{}"'.format(value), dash.no_update
 
+@app.callback(Output('memory-frame', 'data'),
+              Input('video-player', 'currentTime'))
+def update_current_frame(currentTime):
+    try:
+        frame_no = int(np.round(currentTime / .04))
+        print('cuurent frame:', frame_no)
+        return frame_no
+    except:
+        return 0
+
 @app.callback([Output('video-player', 'seekTo'),
                Output('video-player2', 'seekTo')],
               [Input('video-player', 'currentTime'),
@@ -302,7 +314,9 @@ def update_position(currentTime, value, currentTime2, duration):
         if currentTime > 1:
             return start, start
         else:
-            return 0, 0
+            percentage = (start / duration)
+            return percentage, percentage
+            # return 0, 0
     else:
         return dash.no_update, dash.no_update
 
@@ -335,7 +349,7 @@ def render_content(tab, dft, df_angles, playing, currentTime):
                 html.H4('Frame #{}'.format(frame_no)),
                 dash_table.DataTable(
                     id='table-tab1',
-                    columns=[{"name": i, "id": i} for i in df.columns],
+                    columns=[{"name": i, "id": i, 'format': Format(precision=2, scheme=Scheme.fixed),} for i in df.columns],
                     data=df.to_dict('records'),
                     style_table={'overflowX': 'scroll'},
                 )
@@ -352,7 +366,6 @@ def render_content(tab, dft, df_angles, playing, currentTime):
                     style={'min-width': '100vh'},
                 ),
             )
-
 
     except:
         return dash.no_update
@@ -469,6 +482,14 @@ def update_figure(playing, currentTime, video_frames):
                         type='line', xref='x', yref='y',
                         x0=x1, x1=x2, y0=y1, y1=y2, line_color=color, line_width=4
                     )
+                    fig.add_shape(
+                        type='line', xref='x', yref='y',
+                        x0=x1, x1=x2, y0=y1, y1=y2,
+                        line=dict(color='rgba(231,107,243,0.2)', width=15)
+                        # fill='toself',
+                        # fillcolor='rgba(0,176,246,0.2)',
+                        # line_color=color,
+                    )
                 fig.add_shape(
                     type='circle', xref='x', yref='y',
                     x0=x1 - 3, y0=y1 - 3, x1=x1 + 3, y1=y1 + 3, line_color=color, fillcolor=color
@@ -520,35 +541,6 @@ def update_time(currentTime, currentTime2):
 def update_methods(secondsLoaded, duration):
     return 'Second Loaded: {}, Duration: {}'.format(secondsLoaded, duration)
 
-
-# @app.callback(Output('video-player', 'intervalCurrentTime'),
-#               [Input('slider-intervalCurrentTime', 'value')])
-# def update_intervalCurrentTime(value):
-#     return value
-#
-#
-# @app.callback(Output('video-player', 'intervalSecondsLoaded'),
-#               [Input('slider-intervalSecondsLoaded', 'value')])
-# def update_intervalSecondsLoaded(value):
-#     return value
-#
-#
-# @app.callback(Output('video-player', 'intervalDuration'),
-#               [Input('slider-intervalDuration', 'value')])
-# def update_intervalDuration(value):
-#     return value
-
-
-# @app.callback(Output('video-player', 'seekTo'),
-#               [Input('slider-seek-to', 'value')])
-# def set_seekTo(value):
-#     return value
-#
-# @app.callback(Output('video-player', 'duration'),
-#                 [Input('slider-duration', 'value')])
-# def set_durationTo(value):
-#     return value
-
 @app.callback(
     Output("modal-centered", "is_open"),
     [Input("open-centered", "n_clicks"), Input("close-centered", "n_clicks")],
@@ -583,32 +575,13 @@ def render_dif_table(value, click1, click2, click3):
     df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
     return render_datatable(df_angles_dif, pagesize=12, dif_table='true')
 
+### Datatable Callbacks
+@app.callback(Output('table-tab2-main', 'selected_rows'),
+               Input('memory-frame', 'data'))
+def update_selected_column(frame_no):
+    # print('Frame:{}'.format(frame_no))
+    return [0]
 
-# @app.callback(Output('dif-table', 'children[0]'),
-#               [Input('memory-video1', 'value'),
-#                Input('qsearch-2', 'n_clicks')],
-#               )
-# def render_dif_table(value, click):
-#     if not click or not value:
-#         return dash.no_update
-#     else:
-#         pose = POSES_DICT['qsearch-2']['data']
-#         df_angles_dif = pose_query(value, pose)
-#         df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
-#         return render_datatable(df_angles_dif, pagesize=12)
-#
-# @app.callback(Output('dif-table', 'children[1]'),
-#               [Input('memory-video1', 'value'),
-#                Input('qsearch-3', 'n_clicks')],
-#               )
-# def render_dif_table(value, click):
-#     if not click or not value:
-#         return dash.no_update
-#     else:
-#         pose = POSES_DICT['qsearch-3']['data']
-#         df_angles_dif = pose_query(value, pose)
-#         df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
-#         return render_datatable(df_angles_dif, pagesize=12)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
