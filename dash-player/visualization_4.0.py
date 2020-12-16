@@ -295,7 +295,6 @@ def update_output(value, duration):
 def update_current_frame(currentTime):
     try:
         frame_no = int(np.round(currentTime / .04))
-        print('cuurent frame:', frame_no)
         return frame_no
     except:
         return 0
