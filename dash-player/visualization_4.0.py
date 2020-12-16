@@ -19,7 +19,7 @@ from keypoint_frames import get_keypoints
 from keypoint_frames import create_df
 from overall_video_similarity import create_angles, overall_similarity, pose_query
 from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
-from clustering2 import get_dendogram
+from clustering_new import get_dendogram
 
 # app = dash.Dash(__name__)
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
