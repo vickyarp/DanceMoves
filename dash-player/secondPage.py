@@ -15,7 +15,7 @@ def secondPage():
     df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
     # df_angles_dif = df_angles_dif.to_json()
     return html.Div([
-        html.H2('Variation of Poses in Video'),
+        #html.H2('Variation of Poses in Video'),
         dbc.Row(id= 'row', children=[
             dbc.Col(
                 id='col-queries',
