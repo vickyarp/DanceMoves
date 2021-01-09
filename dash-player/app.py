@@ -2,11 +2,11 @@ import dash
 import dash_bootstrap_components as dbc
 
 
-external_stylesheets = dbc.themes.SPACELAB
+# external_stylesheets = dbc.themes.SPACELAB
 
 #BS = "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
 #external_stylesheets = BS
-#external_stylesheets = dbc.themes.LITERA
+external_stylesheets = dbc.themes.LITERA
 
 #SPACELAB
 #XROMATISTA : SOLAR, JOURNAL
@@ -18,7 +18,9 @@ external_stylesheets = dbc.themes.SPACELAB
 # meta_tags are required for the app layout to be mobile responsive
 app = dash.Dash(__name__, title='Dance Video Analysis', suppress_callback_exceptions=True, external_stylesheets=[external_stylesheets])
 
-
+app.css.config.serve_locally = True
+app.scripts.config.serve_locally = True
+app.config['suppress_callback_exceptions']=True
 
 
 

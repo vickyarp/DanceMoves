@@ -4,7 +4,6 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_core_components as dcc
 import dash_reusable_components as drc
-
 from utils import POSE_PATH, BODYPART_THUMBS
 from datatable import render_datatable
 from overall_video_similarity import pose_query
@@ -58,4 +57,5 @@ def pose_card(img, key, title="Pose"):
         style={"width": "14rem"},
     )
     return card
+
 

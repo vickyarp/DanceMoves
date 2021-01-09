@@ -20,16 +20,17 @@ from keypoint_frames import create_df
 from render_stick_figure import render_stick_figure
 from overall_video_similarity import create_angles, overall_similarity, pose_query
 from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
-from clustering2 import get_dendogram
+from clustering_new import get_dendogram
 
+from app import app
 # app = dash.Dash(__name__)
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-server = app.server
+# # app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+# server = app.server
 
-app.css.config.serve_locally = True
-app.scripts.config.serve_locally = True
-app.config['suppress_callback_exceptions']=True
-app.title= 'Updating...'
+# app.css.config.serve_locally = True
+# app.scripts.config.serve_locally = True
+# app.config['suppress_callback_exceptions']=True
+# app.title= 'Updating...'
 update_title=None
 DURATION = 4.105
 
@@ -56,7 +57,7 @@ def create_coordinate_df(points_with_confidence):
 #     df = create_coordinate_df(frame)
 #     video_frames.append(df)
 
-app.layout = html.Div([
+similarity_layout = html.Div([
     html.H2('Visual Analysis of Dance Moves', style={'text-align': 'center'}),
     dbc.Row([
     html.Div(

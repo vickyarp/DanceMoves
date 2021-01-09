@@ -5,6 +5,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 #import new_visualization
 #from page1 import page_1_layout
+# from visualization import similarity_layout
 from page1_clear import page_1_layout
 from visualquery import page_3_layout
 
@@ -19,8 +20,6 @@ from dataset_info import txt2
 # the exception.
 
 #app = dash.Dash(__name__, suppress_callback_exceptions=True)
-
-
 
 #server = app.server
 
@@ -142,8 +141,8 @@ def display_page(pathname):
     if pathname == '/page-1':
         return page_1_layout
 
-    #elif pathname == '/page-2':
-        #return new_visualization.layout
+    # elif pathname == '/page-2':
+    #     return similarity_layout
     elif pathname == '/page-3':
         return page_3_layout
     else:
