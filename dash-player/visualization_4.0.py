@@ -14,17 +14,13 @@ import pandas as pd
 from datatable import render_datatable
 from modal import modal
 from secondPage import secondPage
-<<<<<<< HEAD
-from utils import COLORS, PAIRS_RENDER, DATASET_VIDEOS, BODYPART_THUMBS, POSES_DICT, BODYPART_INDEX_CANONICAL
-=======
 from utils import COLORS, PAIRS_RENDER, DATASET_VIDEOS, BODYPART_THUMBS, POSES_DICT, BODYPART_INDEX_CANONICAL, update_selected_state
->>>>>>> 2ce7f19... angle highlighting first attempt
 from keypoint_frames import get_keypoints
 from keypoint_frames import create_df
 from render_stick_figure import render_stick_figure
 from overall_video_similarity import create_angles, overall_similarity, pose_query
 from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
-from clustering_new import get_dendogram
+from clustering2 import get_dendogram
 
 # app = dash.Dash(__name__)
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -76,11 +72,8 @@ app.layout = html.Div([
             dcc.Store(id='current-time1'),
             dcc.Store(id='current-time2'),
             dcc.Store(id='memory-frame'),
-<<<<<<< HEAD
-=======
             dcc.Store(id='selected-row-state'),
             dcc.Store(id='selected-points-state'),
->>>>>>> 2ce7f19... angle highlighting first attempt
 
             # dcc.Input(
             #     id='input-url',
@@ -313,10 +306,7 @@ def update_output(value, duration):
 def update_current_frame(currentTime):
     try:
         frame_no = int(np.round(currentTime / .04))
-<<<<<<< HEAD
-=======
         print('cuurent frame:', frame_no)
->>>>>>> 2ce7f19... angle highlighting first attempt
         return frame_no
     except:
         return 0
@@ -598,14 +588,6 @@ def render_dif_table(value, click1, click2, click3):
     return render_datatable(df_angles_dif, pagesize=12, dif_table='true')
 
 ### Datatable Callbacks
-<<<<<<< HEAD
-@app.callback(Output('table-tab2-main', 'selected_rows'),
-               Input('memory-frame', 'data'))
-def update_selected_column(frame_no):
-    # print('Frame:{}'.format(frame_no))
-    return [0]
-
-=======
 # @app.callback(Output('table-tab2-main', 'selected_rows'),
 #                Input('memory-frame', 'data'))
 # def update_selected_column(frame_no):
@@ -622,7 +604,6 @@ def update_selected_column(frame_no):
 #     # else:
 #     print('604: '.format(selected_rows))
 #     return selected_rows
->>>>>>> 2ce7f19... angle highlighting first attempt
 
 if __name__ == '__main__':
     app.run_server(debug=True)

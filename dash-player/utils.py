@@ -214,8 +214,6 @@ BODYPART_INDEX = {
     28: 'torso_to_left_hip'
 }
 
-<<<<<<< HEAD
-=======
 
 def angle_to_bodyparts(angle_names=[]):
     bodyparts = []
@@ -242,7 +240,6 @@ def update_selected_state(state={'angles': [], 'bodyparts': []}, angle_names=[],
     return state
 
 
->>>>>>> 2ce7f19... angle highlighting first attempt
 BODYPART_INDEX_CANONICAL = {
     7: 'left_eye_to_nose_to_left_ear_to_eye',
     8: 'left_eye_to_nose_to_neck',
@@ -393,4 +390,3 @@ POSES_DICT = {
     'qsearch-3': {'src': 'SYN_K_frame22.png', 'data': 'SYN_K_000000000022_keypoints.json'},
 
 }
-

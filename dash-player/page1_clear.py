@@ -172,8 +172,7 @@ page_1_layout = html.Div([
                Output('memory-output1', 'data'),
                Output('video-player', 'url'),
                Output('video-player', 'duration')],
-              [Input('memory-video1', 'value')
- ])
+              Input('memory-video1', 'value'))
 def get_dataframes(video_selected1):
     if not video_selected1 :
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
@@ -190,21 +189,20 @@ def get_dataframes(video_selected1):
 
 
     angles1 = create_angles(video_selected1).T.fillna(0)
-    #angles2 = create_angles(video_selected2).T.fillna(0)
     #return df_angles.to_json(), data, url1, data2, url2, duration, similarity
     return df_angles.to_json(), data, url1, duration
 
 
-@app.callback([Output('video-player', 'playing')],
-              [Input('radio-bool-props', 'value')])
+@app.callback(Output('video-player', 'playing'),
+              Input('radio-bool-props', 'value'))
 def update_prop_playing(values):
     return 'playing' in values
 
 
-@app.callback([Output('video-player', 'loop')],
-              [Input('radio-bool-props', 'value')])
+@app.callback(Output('video-player', 'loop'),
+              Input('radio-bool-props', 'value'))
 def update_prop_loop(values):
-    return 'loop' in values, 'loop' in values
+    return 'loop' in values
 
 
 @app.callback(
@@ -229,8 +227,8 @@ def update_current_frame(currentTime):
         return 0
 
 
-@app.callback([Output('video-player', 'seekTo')],
-              [Input('video-player', 'currentTime')],
+@app.callback(Output('video-player', 'seekTo'),
+              Input('video-player', 'currentTime'),
              [State('range-slider', 'value'),
               State('video-player', 'duration')])
 def update_position(currentTime, value, duration):
@@ -238,13 +236,13 @@ def update_position(currentTime, value, duration):
     end = list(value)[1]
     if currentTime and currentTime >= end:
         if currentTime > 1:
-            return start, start
+            return start
         else:
             percentage = (start / duration)
-            return percentage, percentage
+            return percentage
             # return 0, 0
     else:
-        return dash.no_update, dash.no_update
+        return dash.no_update
 
 
 @app.callback(Output('tabs-content', 'children'),
@@ -252,7 +250,7 @@ def update_position(currentTime, value, duration):
                Input('memory-output1', 'data'),
                Input('memory-table', 'data'),
                Input('video-player', 'playing')],
-               [State('video-player', 'currentTime')])
+               State('video-player', 'currentTime'))
 def render_content(tab, dft, df_angles, playing, currentTime):
     try:
         frame_no = int(np.round(currentTime / .04))
@@ -264,7 +262,7 @@ def render_content(tab, dft, df_angles, playing, currentTime):
                 html.H4('Frame #{}'.format(frame_no)),
                 dash_table.DataTable(
                     id='table-tab1',
-                    columns=[{"name": i, "id": i, 'format': Format(precision=2, scheme=Scheme.fixed),} for i in df.columns],
+                    columns=[{"name": i, "id": i, 'type': 'numeric', 'format': Format(precision=2, scheme=Scheme.fixed),} for i in df.columns],
                     data=df.to_dict('records'),
                     style_table={'overflowX': 'scroll'},
                 )
@@ -277,12 +275,11 @@ def render_content(tab, dft, df_angles, playing, currentTime):
 
 
 @app.callback(Output('graph-im1', 'figure'),
-              [Input('video-player', 'playing')],
+              Input('video-player', 'playing'),
               [State('video-player', 'currentTime'),
                State('memory-output1', 'data')])
 def update_figure(playing, currentTime, video_frames):
-    if not playing and currentTime > 0:
-    #if playing and currentTime > 0:
+    if not playing and currentTime and currentTime > 0:
 
         # points = get_coordinates(keypoints[int(np.round(1/.04))])
         df = pd.read_json(video_frames[int(np.round(currentTime/.04))])
@@ -353,10 +350,10 @@ def update_figure(playing, currentTime, video_frames):
         return dash.no_update
 
 
-@app.callback([Output('video-player', 'controls')],
-              [Input('radio-bool-props', 'value')])
+@app.callback(Output('video-player', 'controls'),
+              Input('radio-bool-props', 'value'))
 def update_prop_controls(values):
-    return 'controls' in values, 'controls' in values
+    return 'controls' in values
 
 
 #
@@ -367,23 +364,22 @@ def update_prop_controls(values):
 #     return value
 
 
-@app.callback([Output('video-player', 'playbackRate')],
-              [Input('slider-playback-rate', 'value')])
+@app.callback(Output('video-player', 'playbackRate'),
+              Input('slider-playback-rate', 'value'))
 def update_playbackRate(value):
-    return value, value
+    return value
 
 
 # Instance Methods
-@app.callback([Output('div-current-time', 'children')],
-              [Input('video-player', 'currentTime') ])
+@app.callback(Output('div-current-time', 'children'),
+              Input('video-player', 'currentTime'))
 def update_time(currentTime):
     return 'Current Time: {}'.format(currentTime)
 
 
-@app.callback([Output('div-method-output', 'children'),
-               ],
-              [Input('video-player', 'secondsLoaded')],
-              [State('video-player', 'duration')])
+@app.callback(Output('div-method-output', 'children'),
+              Input('video-player', 'secondsLoaded'),
+              State('video-player', 'duration'))
 def update_methods(secondsLoaded, duration):
     return 'Second Loaded: {}, Duration: {}'.format(secondsLoaded, duration)
 

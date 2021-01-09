@@ -84,10 +84,6 @@ def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[]):
 
 def highlight_current_frame(frame_no):
     header_styles = []
-<<<<<<< HEAD
-    header_styles.append({ 'if': { 'column_id': 'Frame:{}'.format(frame_no), 'header_index': 0 }, 'color': 'white', 'backgroundColor': 'black' },)
-    return header_styles
-=======
     header_styles.append({
         'if': { 'column_id': 'Frame:{}'.format(frame_no), 'header_index': 0 },
         'color': 'white',
@@ -97,7 +93,6 @@ def highlight_current_frame(frame_no):
     styles = {'if': {'column_id': 'Frame:{}'.format(frame_no), }, 'border-right': '3px black solid', 'border-left': '3px black solid'}
     return header_styles, styles
 
->>>>>>> 2ce7f19... angle highlighting first attempt
 def tooltip_angles(bodyparts=BODYPART_INDEX, type='angles'):
     tooltip = []
     for key, value in BODYPART_INDEX.items():
