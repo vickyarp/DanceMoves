@@ -99,7 +99,7 @@ DATASET_VIDEOS = [
     'AR',
 ]
 
-COLORS = [
+COLORS_OLD = [
     'rgb(255, 0, 85)',
     'rgb(255, 0, 0)',
     'rgb(255, 85, 0)',
@@ -125,26 +125,62 @@ COLORS = [
     'rgb(0, 255, 255)',
     'rgb(0, 255, 255)']
 
+COLORS = [
+    'rgb(255, 0, 0)',
+    'rgb(255, 0, 0)',
+    'rgb(255, 170, 0)',
+    'rgb(255, 255, 0)',
+    'rgb(255, 85, 0)',
+    'rgb(170, 255, 0)',
+    'rgb(85, 255, 0)',
+    'rgb(0, 255, 0)',
+    'rgb(0, 255, 170)',
+    'rgb(0, 255, 85)',
+    'rgb(0, 170, 255)',
+    'rgb(85, 0, 255)',
+    'rgb(0, 85, 255)',
+    'rgb(255, 0, 85)',
+    'rgb(0, 0, 255)',
+    'rgb(255, 0, 170)',
+    'rgb(170, 0, 255)',
+    'rgb(255, 0, 255)',
+    'rgb(0, 0, 255)',
+    'rgb(0, 0, 255)',
+    'rgb(0, 0, 255)',
+    'rgb(0, 255, 255)',
+    'rgb(0, 255, 255)',
+    'rgb(0, 255, 255)',
+]
 PAIRS_RENDER = np.array(
     [[1, 8], [1, 2], [1, 5], [2, 3], [3, 4], [5, 6], [6, 7], [8, 9], [9, 10], [10, 11], [8, 12], [12, 13], [13, 14],
      [1, 0], [0, 15], [15, 17], [0, 16], [16, 18], [14, 19], [19, 20], [14, 21], [11, 22], [22, 23], [11, 24]])
 
-PAIRS_RENDER_NEW = np.array(
-    [[2, 9], [2, 3], [2, 6], [3, 4], [4, 5], [6, 7], [7, 8], [9, 10], [10, 11], [11, 12], [9, 13], [13, 14], [14, 15],
-     [2, 1], [1, 16], [16, 18], [1, 17], [17, 19], [15, 20], [20, 21], [15, 22], [12, 23], [23, 24], [12, 25]])
-
-#
-# x=[df.x[1], df.x[8], None, df.x[1], df.x[2], None, df.x[1], df.x[5], None,
-#  df.x[2], df.x[3], None, df.x[3], df.x[4], None,df.x[5], df.x[6], None, df.x[6], df.x[7], None,
-# df.x[8], df.x[9], None,df.x[9], df.x[10], None,df.x[10], df.x[11], None,df.x[8], df.x[12], None,df.x[12], df.x[13], None,
-# df.x[13], df.x[14], None,df.x[1], df.x[0], None,df.x[0], df.x[15], None,df.x[15], df.x[17], None,df.x[0], df.x[16], None,df.x[16], df.x[18], None,
-# df.x[14], df.x[19], None,df.x[19], df.x[20], None,df.x[14], df.x[21], None,df.x[11], df.x[22], None,df.x[22], df.x[23], None,df.x[11], df.x[24]],
-#                                  y=[df.y[1], df.y[8], None, df.y[1], df.y[2], None, df.y[1], df.y[5], None,
-#  df.y[2], df.y[3], None, df.y[3], df.y[4], None,df.y[5], df.y[6], None, df.y[6], df.y[7], None,
-# df.y[8], df.y[9], None,df.y[9], df.y[10], None,df.y[10], df.y[11], None,df.y[8], df.y[12], None,df.y[12], df.y[13], None,
-# df.y[13], df.y[14], None,df.y[1], df.y[0], None,df.y[0], df.y[15], None,df.y[15], df.y[17], None,df.y[0], df.y[16], None,df.y[16], df.y[18], None,
-# df.y[14], df.y[19], None,df.y[19], df.y[20], None,df.y[14], df.y[21], None,df.y[11], df.y[22], None,df.y[22], df.y[23], None,df.y[11], df.y[24]]
-
+BODY_SEGMENTS = {
+    'torso': [1,8],
+    'right_shoulder': [1,2],
+    'right_upper_arm': [2,3],
+    'right_lower_arm': [3,4],
+    'left_shoulder': [1,5],
+    'left_upper_arm': [5,6],
+    'left_lower_arm': [6,7],
+    'right_hip': [8,9],
+    'right_upper_leg': [9,10],
+    'right_lower_leg': [10,11],
+    'left_hip': [8,12],
+    'left_upper_leg': [12,13],
+    'left_lower_leg': [13,14],
+    'nose_to_neck': [1,0],
+    'right_eye_to_nose': [0,15],
+    'right_ear_to_eye': [15,17],
+    'left_eye_to_nose': [0,16],
+    'left_ear_to_eye': [16,18],
+    'left_foot': [14,19],
+    'left_toes': [19,20],
+    'left_ankle_to_heel': [14,21],
+    'right_foot': [11,22],
+    'right_toes': [22,23],
+    'right_ankle_to_heel': [11,24],
+}
 
 BODYPART_INDEX = {
     0: 'nose_to_neck_to_left_shoulder',
@@ -178,6 +214,35 @@ BODYPART_INDEX = {
     28: 'torso_to_left_hip'
 }
 
+<<<<<<< HEAD
+=======
+
+def angle_to_bodyparts(angle_names=[]):
+    bodyparts = []
+    for angle_name in angle_names:
+        for key, value in BODY_SEGMENTS.items():
+            if key in angle_name:
+                bodyparts.append(value)
+    return bodyparts
+
+
+def bodyparts_to_angles(bodyparts_names=[]):
+    angles = []
+    for bodypart in bodyparts_names:
+        for key, value in BODYPART_INDEX.values():
+            if bodypart in value:
+                angles.append(value)
+    return angles
+
+def update_selected_state(state={'angles': [], 'bodyparts': []}, angle_names=[], bodyparts_names=[]):
+    new_bodyparts = angle_to_bodyparts(angle_names)
+    new_angles = bodyparts_to_angles(bodyparts_names)
+    state.bodyparts = list(set(state.bodyparts + new_bodyparts))
+    state.angles = list(set(state.angles + new_angles))
+    return state
+
+
+>>>>>>> 2ce7f19... angle highlighting first attempt
 BODYPART_INDEX_CANONICAL = {
     7: 'left_eye_to_nose_to_left_ear_to_eye',
     8: 'left_eye_to_nose_to_neck',
@@ -328,3 +393,4 @@ POSES_DICT = {
     'qsearch-3': {'src': 'SYN_K_frame22.png', 'data': 'SYN_K_000000000022_keypoints.json'},
 
 }
+

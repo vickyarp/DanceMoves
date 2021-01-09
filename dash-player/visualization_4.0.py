@@ -14,9 +14,14 @@ import pandas as pd
 from datatable import render_datatable
 from modal import modal
 from secondPage import secondPage
+<<<<<<< HEAD
 from utils import COLORS, PAIRS_RENDER, DATASET_VIDEOS, BODYPART_THUMBS, POSES_DICT, BODYPART_INDEX_CANONICAL
+=======
+from utils import COLORS, PAIRS_RENDER, DATASET_VIDEOS, BODYPART_THUMBS, POSES_DICT, BODYPART_INDEX_CANONICAL, update_selected_state
+>>>>>>> 2ce7f19... angle highlighting first attempt
 from keypoint_frames import get_keypoints
 from keypoint_frames import create_df
+from render_stick_figure import render_stick_figure
 from overall_video_similarity import create_angles, overall_similarity, pose_query
 from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
 from clustering_new import get_dendogram
@@ -71,72 +76,87 @@ app.layout = html.Div([
             dcc.Store(id='current-time1'),
             dcc.Store(id='current-time2'),
             dcc.Store(id='memory-frame'),
+<<<<<<< HEAD
+=======
+            dcc.Store(id='selected-row-state'),
+            dcc.Store(id='selected-points-state'),
+>>>>>>> 2ce7f19... angle highlighting first attempt
 
             # dcc.Input(
             #     id='input-url',
             #     value='/assets/TB_F_FB.mp4'
             # ),
             # html.Button('Change video', id='button-update-url'),
-            html.P("Choose Main Video:"),
-            dcc.Dropdown(
-                id='memory-video1',
-                options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
-                value='BA_R_WA'
+            dbc.Card(
+                dbc.CardBody([
+                    html.P("Choose Main Video:"),
+                    dcc.Dropdown(
+                        id='memory-video1',
+                        options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
+                        value='BA_R_WA'
+                    ),
+
+                    dash_player.DashPlayer(
+                        id='video-player',
+                        #url='/assets/TB_F_FB.mp4',#t=npt:2.3,2.9',
+                        currentTime= 0,
+                        controls=True,
+                        intervalCurrentTime=40,
+                        loop=True,
+                        width='100%',
+                        height='min-content'
+                    ),
+                    html.Div(
+                        id='div-current-time',
+                        style={'margin': '10px 0px'}
+                    ),
+                    html.Div(
+                        id='div-method-output',
+                        style={'margin': '10px 0px'}
+                    ),
+                ]),
+                className="mb-3",
             ),
 
-            dash_player.DashPlayer(
-                id='video-player',
-                #url='/assets/TB_F_FB.mp4',#t=npt:2.3,2.9',
-                currentTime= 0,
-                controls=True,
-                intervalCurrentTime=40,
-                loop=True,
-                width='100%'
-            ),
-            html.Div(
-                id='div-current-time',
-                style={'margin': '10px 0px'}
-            ),
+            dbc.Card([
+                dbc.CardHeader([
+                    dcc.Checklist(
+                        id='radio-bool-props',
+                        options=[{'label': val.capitalize(), 'value': val} for val in [
+                            'playing',
+                            'loop',
+                            'controls',
+                            'muted'
+                        ]],
+                        value=['loop', 'muted']
+                    ),
 
-            html.Div(
-                id='div-method-output',
-                style={'margin': '10px 0px'}
-            ),
+                    html.P("Playback Range: {}", id='output-container-range-slider'),
+                    dcc.RangeSlider(
+                        id='range-slider',
+                        min=0,
+                        max=DURATION,
+                        step=0.001,
+                        value=[0, 3],
+                        updatemode='drag',
+                        # marks={i: "%g" %i for i in np.arange(0, 10, 0.1)},
+                    ),
 
-            dcc.Checklist(
-                id='radio-bool-props',
-                options=[{'label': val.capitalize(), 'value': val} for val in [
-                    'playing',
-                    'loop',
-                    'controls',
-                    'muted'
-                ]],
-                value=['loop', 'muted']
-            ),
+                    html.P("Playback Rate:",),
+                    dcc.Slider(
+                        id='slider-playback-rate',
+                        min=0,
+                        max=1.5,
+                        step=None,
+                        updatemode='drag',
+                        marks={i: str(i) + 'x' for i in
+                               [0, 0.25, 0.5, 0.75, 1, 1.5]},
+                        value=0.25
+                    ),
+                ]),
+            ],
+            className="mb-3",),
 
-            html.P("Playback Range: {}", id='output-container-range-slider'),
-            dcc.RangeSlider(
-                id='range-slider',
-                min=0,
-                max=DURATION,
-                step=0.001,
-                value=[0, 3],
-                updatemode='drag',
-                # marks={i: "%g" %i for i in np.arange(0, 10, 0.1)},
-            ),
-
-
-            html.P("Playback Rate:", style={'margin-top': '20px'}),
-            dcc.Slider(
-                id='slider-playback-rate',
-                min=0,
-                max=1.5,
-                step=None,
-                updatemode='drag',
-                marks={i: str(i) + 'x' for i in
-                       [0, 0.25, 0.5, 0.75, 1, 1.5]},
-                value=0.25
-            ),
 
             # html.P("Update Interval for Current Time:", style={'margin-top': '30px'}),
             # dcc.Slider(
@@ -149,40 +169,38 @@ app.layout = html.Div([
             #     value=100,
             # ),
 
-            html.P("Choose Second Video:", style={'margin-top': '40px'}),
-            dcc.Dropdown(
-                id='memory-video2',
-                options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
-                value='BA_R_NA'
-            ),
-            dash_player.DashPlayer(
-                id='video-player2',
-                #url='/assets/TB_F_FB.mp4',#t=npt:2.3,2.9',
-                currentTime= 0,
-                intervalCurrentTime = 100,
-                loop=True,
-                controls=True,
-                width='100%'
-            ),
-            html.Div(
-                id='div-current-time2',
-                style={'margin': '10px 0px'}
-            ),
-            # dcc.Markdown(dedent('''
-            # ### Video Examples
-            # * mp4: http://media.w3.org/2010/05/bunny/movie.mp4
-            # * mp3: https://media.w3.org/2010/07/bunny/04-Death_Becomes_Fur.mp3
-            # * webm: https://media.w3.org/2010/05/sintel/trailer.webm
-            # * ogv: http://media.w3.org/2010/05/bunny/movie.ogv
-            # * Youtube: https://www.youtube.com/watch?v=sea2K4AuPOk
-            # '''))
-        ]
+            dbc.Card([
+                dbc.CardHeader(["Choose Second Video:", dcc.Dropdown(
+                        id='memory-video2',
+                        options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
+                        value='BA_R_NA'
+                    ),]),
+                dbc.CardBody([
 
+                    dash_player.DashPlayer(
+                        id='video-player2',
+                        #url='/assets/TB_F_FB.mp4',#t=npt:2.3,2.9',
+                        currentTime= 0,
+                        intervalCurrentTime = 100,
+                        loop=True,
+                        controls=True,
+                        width='100%',
+                        height='min-content'
+                    ),
+                    html.Div(
+                        id='div-current-time2',
+                        # style={'margin': '10px 0px'}
+                    ),
+                ])
+            ],
+            className="mb-3",
+            )
+        ]
     ),
 
     html.Div(
         style={
-            'width': '47%',
+            'width': '55%',
             'float': 'left',
             'margin': '2% 0% 0% 1%'
         },
@@ -210,7 +228,7 @@ app.layout = html.Div([
     ),
     html.Div(
         style={
-            'width': '29%',
+            'width': '20%',
             'float': 'right',
             'margin': '-1% 0% 0% 0%'
 
@@ -295,6 +313,10 @@ def update_output(value, duration):
 def update_current_frame(currentTime):
     try:
         frame_no = int(np.round(currentTime / .04))
+<<<<<<< HEAD
+=======
+        print('cuurent frame:', frame_no)
+>>>>>>> 2ce7f19... angle highlighting first attempt
         return frame_no
     except:
         return 0
@@ -335,9 +357,10 @@ def update_position(currentTime, value, currentTime2, duration):
               [Input('table-tabs', 'value'),
                Input('memory-output1', 'data'),
                Input('memory-table', 'data'),
-               Input('video-player', 'playing')],
+               Input('video-player', 'playing'),
+               Input('selected-row-state', 'data')],
                [State('video-player', 'currentTime')])
-def render_content(tab, dft, df_angles, playing, currentTime):
+def render_content(tab, dft, df_angles, playing, selected_rows, currentTime):
     try:
         frame_no = int(np.round(currentTime / .04))
 
@@ -355,7 +378,7 @@ def render_content(tab, dft, df_angles, playing, currentTime):
             ])]
         elif tab == 'tab-2':
             df_angles = pd.read_json(df_angles)
-            return render_datatable(df_angles, frame_no), modal(df_angles, frame_no),
+            return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
 
         elif tab == 'tab-3':
             return html.Div(
@@ -370,81 +393,81 @@ def render_content(tab, dft, df_angles, playing, currentTime):
         return dash.no_update
 
 
-@app.callback(Output('graph-im1', 'figure'),
-              [Input('video-player', 'playing')],
+@app.callback([Output('graph-im1', 'figure'),
+               Output('selected-points-state', 'data')],
+              [Input('video-player', 'playing'),
+               Input('graph-im1', 'selectedData'),
+               Input('graph-im1', 'clickData'),
+               Input('graph-im1', 'restyleData')],
               [State('video-player', 'currentTime'),
-               State('memory-output1', 'data')])
-def update_figure(playing, currentTime, video_frames):
-    if not playing and currentTime and currentTime > 0:
+               State('memory-output1', 'data'),
+               State('memory-video1', 'value'),
+               State('graph-im1', 'figure'),
+               State('selected-points-state', 'data')])
+def update_figure(playing, selectedData, clickData, restyleData, currentTime, video_frames, video1, fig, selected_points):
+    ctx = dash.callback_context
+    if ctx.triggered[0]['prop_id'] == 'video-player.playing':
+        if not playing and currentTime and currentTime > 0:
+            # points = get_coordinates(keypoints[int(np.round(1/.04))])
+            df = pd.read_json(video_frames[int(np.round(currentTime/.04))])
+            return render_stick_figure(df, video1), dash.no_update
 
-        # points = get_coordinates(keypoints[int(np.round(1/.04))])
-        df = pd.read_json(video_frames[int(np.round(currentTime/.04))])
-        fig = go.Figure()
-        img_width = 400
-        img_height = 400
-        scale_factor = 0.5
-        fig.add_layout_image(
-            x=100,
-            sizex=img_width,
-            y=100,
-            sizey=img_height + 200,
-            xref="x",
-            yref="y",
-            opacity=1.0,
-            layer="below"
-        )
-        fig.update_xaxes(showgrid=False, scaleanchor='y', range=(0, img_width))
-        fig.update_yaxes(showgrid=False, range=(img_height, 0))
-        for pair, color in zip(PAIRS_RENDER, COLORS):
-            x1 = int(df.x[pair[0]])
-            y1 = int(df.y[pair[0]])
-            x2 = int(df.x[pair[1]])
-            y2 = int(df.y[pair[1]])
-            z1 = df.confidence[pair[0]]
-            z2 = df.confidence[pair[1]]
+        else: return dash.no_update, dash.no_update
+    else:
+        try:
+            # scatter = fig.data[0]
+            # scatter.on_click(update_point)
 
-            if (x1 != 0 and x2 != 0 and y1 != 0 and y2 != 0):
-                fig.add_shape(
-                    type='line', xref='x', yref='y',
-                    x0=x1, x1=x2, y0=y1, y1=y2, line_color=color, line_width=4
-                )
-            fig.add_shape(
-                type='circle', xref='x', yref='y',
-                x0=x1 - 3, y0=y1 - 3, x1=x1 + 3, y1=y1 + 3, line_color=color, fillcolor=color
-            )
-            fig.add_shape(
-                type='circle', xref='x', yref='y',
-                x0=x2 - 3, y0=y2 - 3, x1=x2 + 3, y1=y2 + 3, line_color=color, fillcolor=color
-            )
-            fig.add_trace(
-                go.Scatter(
-                    x=[x2],
-                    y=[y2],
-                    # mode='markers',
-                    # marker_size=8,
-                    showlegend=False,
-                    marker_color=color,
-                    name='',
-                    text='Confidence:{:.2f}'.format(z1),
-                    opacity=0
-                )
-            )
-            fig.add_trace(
-                go.Scatter(
-                    x=[x2],
-                    y=[y2],
-                    showlegend=False,
-                    marker_color=color,
-                    name='',
-                    text='Confidence:{:.2f}'.format(z2),
-                    opacity=0
-                )
-            )
+            selection = None
+            # Update selection based on which event triggered the update.
+            print(dash.callback_context.triggered)
+            # curve_number = clickData["points"][0]['curveNumber']
+            trigger = dash.callback_context.triggered[0]['prop_id']
+            print(trigger)
+            # if trigger == 'graph-im1.clickData':
+            #     selection = [point["curveNumber"] for point in clickData["points"]]
+            #     print(selection)
+            #     for curve_number in selection:
+            #         # fig["data"][curve_number]["selectedpoints"] = selection
+            #         fig["data"][curve_number]["line"]["color"] = 'black'
+            if trigger == 'graph-im1.selectedData':
+                selection = [point["curveNumber"] for point in selectedData["points"]]
+                selection_names = [fig["data"][curve_number]['name'] for curve_number in selection]
+                for curve_number in selection:
+                    # fig["data"][curve_number]["selectedpoints"] = selection
+                    fig["data"][curve_number]["line"]["color"] = 'black'
+                selected_points = update_selected_state(state=selected_points, bodypart_names=selection_names)
+                return fig, selected_points
+
+            if trigger == 'graph-im1.restyleData':
+                print('hre')
+                print(restyleData)
+                print(selectedData)
+
+            fig["data"][0]["selectedpoints"] = selection
+
+            return fig, dash.no_update
+        except TypeError:
+            return dash.no_update, dash.no_update
 
 
-        return fig
-    else: return dash.no_update
-
+# @app.callback(Output("graph-im1", "figure"), [Input("graph-im1", "selectedData"), Input("graph-im1", "clickData")],
+#               [State("graph-im1", "figure")])
+# def update_color(selectedData, clickData, fig):
+#     selection = None
+#     # Update selection based on which event triggered the update.
+#     trigger = dash.callback_context.triggered[0]["prop_id"]
+#     if trigger == 'graph.clickData':
+#         selection = [point["pointNumber"] for point in clickData["points"]]
+#     if trigger == 'graph.selectedData':
+#         selection = [point["pointIndex"] for point in selectedData["points"]]
+#     # Update scatter selection
+#     fig["data"][0]["selectedpoints"] = selection
+#     # Update parcats colors
+#     # new_color = np.zeros(len(cars_df), dtype='uint8')
+#     # new_color[selection] = 1
+#     # fig["data"][1]["line"]["color"] = new_color
+#     return fig
 
 @app.callback(Output('graph-im2', 'figure'),
               [Input('video-player2', 'playing')],
@@ -575,12 +598,31 @@ def render_dif_table(value, click1, click2, click3):
     return render_datatable(df_angles_dif, pagesize=12, dif_table='true')
 
 ### Datatable Callbacks
+<<<<<<< HEAD
 @app.callback(Output('table-tab2-main', 'selected_rows'),
                Input('memory-frame', 'data'))
 def update_selected_column(frame_no):
     # print('Frame:{}'.format(frame_no))
     return [0]
 
+=======
+# @app.callback(Output('table-tab2-main', 'selected_rows'),
+#                Input('memory-frame', 'data'))
+# def update_selected_column(frame_no):
+#     # print('Frame:{}'.format(frame_no))
+#     return [0]
+
+###################################### HERE NEXT
+# @app.callback(Output('selected-row-state', 'data'),
+#               [Input('table-tab2-main', 'selected_rows'),
+#               Input('selected-points-state', 'data')])
+# def update_selected_row_state(selected_rows, selected_points):
+#     # if not selected_rows:
+#     #     return []
+#     # else:
+#     print('604: '.format(selected_rows))
+#     return selected_rows
+>>>>>>> 2ce7f19... angle highlighting first attempt
 
 if __name__ == '__main__':
     app.run_server(debug=True)

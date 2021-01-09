@@ -11,3 +11,7 @@
 #table-tab2 p {
     margin: 0;
 }
+
+#group-title {
+    transform: rotate(90deg);
+}

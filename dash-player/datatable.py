@@ -6,17 +6,31 @@ from heatmap_table_format import heatmap_table_format, highlight_current_frame, 
 from utils import BODYPART_THUMBS_SMALL
 
 
-def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10, dif_table='false'):
-    (styles, legend) = heatmap_table_format(df_angles)
+def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10, dif_table='false', selected_rows=[]):
+    print('selected rows: {}'.format(selected_rows))
+    if not selected_rows: selected_rows = []
+
+    # Apply table styles
+    (styles, legend) = heatmap_table_format(df_angles, selected_rows=selected_rows)
     styles_header = []
-    if frame_no != 'false': styles_header = highlight_current_frame(frame_no)
+    if frame_no != 'false':
+        styles_header, extra_styles = highlight_current_frame(frame_no)
+        styles.append(extra_styles)
+
+    # Table Overview case
     if fullsize == 'true':
         df_angles.insert(0, 'angles_small', BODYPART_THUMBS_SMALL, True)
         return html.Div([
             html.Div(dbc.ButtonGroup(
+<<<<<<< HEAD
             [dbc.Button("Head"), dbc.Button("Torso"), dbc.Button("Arms"), dbc.Button("Legs"), dbc.Button("Feet")],
             size="md",
             className="mr-1",
+=======
+                [dbc.Button("Head"), dbc.Button("Torso"), dbc.Button("Arms"), dbc.Button("Legs"), dbc.Button("Feet")],
+                size="md",
+                className="mr-1",
+>>>>>>> 2ce7f19... angle highlighting first attempt
             )),
             html.Div(legend, style={'float': 'right'}),
             dash_table.DataTable(
@@ -39,6 +53,7 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 tooltip_duration=None
             ),
         ])
+    # Difference table case
     elif dif_table == 'true':
         return html.Div([
             render_frame_header(frame_no),
@@ -67,6 +82,7 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 tooltip_duration=None
             ),
         ])
+    # Render default table
     else:
         return html.Div([
             render_frame_header(frame_no),
@@ -99,6 +115,10 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 style_table={'overflowX': 'scroll', 'max-width': '100%'},
                 style_cell={},
                 row_selectable='multi',
+<<<<<<< HEAD
+=======
+                selected_rows=selected_rows,
+>>>>>>> 2ce7f19... angle highlighting first attempt
                 page_size=pagesize,
                 style_data_conditional=styles,
                 style_header_conditional=styles_header,
@@ -107,6 +127,8 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 tooltip_duration=None
             ),
         ])
+
+
 def render_frame_header(frame_no):
-    if frame_no != 'false': return html.H4('Current Frame: #{}'.format(frame_no), style={'margin-top': '1%'})
+    if frame_no != 'false': return html.H4('Current Frame: #{}'.format(frame_no), style={'marginTop': '1%'})
     else: return html.H4()
