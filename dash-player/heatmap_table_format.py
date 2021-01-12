@@ -13,8 +13,11 @@ viridis = [
  # '#b5de2b',
  '#fde725'
 ]
+
+
+#     '#f0f9e8',
 colormap = [
-    '#f0f9e8',
+    '#ddeedd',
     '#bae4bc',
     '#7bccc4',
     '#2b8cbe',

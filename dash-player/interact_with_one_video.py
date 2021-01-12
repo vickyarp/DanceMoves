@@ -46,89 +46,102 @@ page_1_layout = html.Div([
     dcc.Location(id='url',refresh=False,pathname='/page-1'),
     html.H1('Interact with one video', style={'text-align': 'center'}),
     html.Br(),
-    dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
+    html.Div([
+        dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
+        dcc.Link(dbc.Button('Interact with two videos and find similarity', size="lg"), href="/page-2"),
+        dcc.Link(dbc.Button('Interact with visual query', size="lg"), href="/page-3"),
+        ],style={ 'display': 'flex', 'justify-content': 'center'}),
+
     dbc.Row([
-    html.Div(
-        style={
-            'width': '20%',
-            'float': 'left',
-            'margin': '1% 2% 2% 1%'
-        },
-        children=[
-            dcc.Store(id='memory-output1'),
-            dcc.Store(id='memory-table'),
-            dcc.Store(id='current-time1'),
-            dcc.Store(id='memory-frame'),
+        html.Div(
+            style={
+                'width': '20%',
+                'float': 'left',
+                'margin': '1% 2% 2% 1%'
+            },
+            children=[
+                dcc.Store(id='memory-output1_b'),
+                dcc.Store(id='memory-table_b'),
+                dcc.Store(id='current-time1_b'),
+                dcc.Store(id='memory-frame_b'),
 
-            # dcc.Input(
-            #     id='input-url',
-            #     value='/assets/TB_F_FB.mp4'
-            # ),
-            # html.Button('Change video', id='button-update-url'),
-            html.P("Choose Main Video:"),
-            dcc.Dropdown(
-                id='memory-video1',
-                options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
-                value='BA_R_WA'
-            ),
+                # dcc.Input(
+                #     id='input-url',
+                #     value='/assets/TB_F_FB.mp4'
+                # ),
+                # html.Button('Change video', id='button-update-url'),
+                dbc.Card(
+                    dbc.CardBody([
+                        html.P("Choose Main Video:"),
+                        dcc.Dropdown(
+                            id='memory-video1_b',
+                            options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
+                            value='BA_R_WA'
+                        ),
 
-            dash_player.DashPlayer(
-                id='video-player',
-                #url='/assets/TB_F_FB.mp4',#t=npt:2.3,2.9',
-                currentTime= 0,
-                controls=True,
-                intervalCurrentTime=40,
-                loop=True,
-                width='100%'
-            ),
-            html.Div(
-                id='div-current-time',
-                style={'margin': '10px 0px'}
-            ),
+                        dash_player.DashPlayer(
+                            id='video-player_b',
+                            # url='/assets/TB_F_FB.mp4',#t=npt:2.3,2.9',
+                            currentTime=0,
+                            controls=True,
+                            intervalCurrentTime=40,
+                            loop=True,
+                            width='100%',
+                            height='min-content'
+                        ),
+                        html.Div(
+                            id='div-current-time_b',
+                            style={'margin': '10px 0px'}
+                        ),
+                        html.Div(
+                            id='div-method-output_b',
+                            style={'margin': '10px 0px'}
+                        ),
+                    ]),
+                    className="mb-3",
+                ),
 
-            html.Div(
-                id='div-method-output',
-                style={'margin': '10px 0px'}
-            ),
+                dbc.Card([
+                    dbc.CardHeader([
+                        dcc.Checklist(
+                            id='radio-bool-props_b',
+                            options=[{'label': val.capitalize(), 'value': val} for val in [
+                                'playing',
+                                'loop',
+                                'controls',
+                                'muted'
+                            ]],
+                            value=['loop', 'muted']
+                        ),
 
-            dcc.Checklist(
-                id='radio-bool-props',
-                options=[{'label': val.capitalize(), 'value': val} for val in [
-                    'playing',
-                    'loop',
-                    'controls',
-                    'muted'
-                ]],
-                value=['loop', 'muted']
-            ),
+                        html.P("Playback Range: {}", id='output-container-range-slider_b'),
+                        dcc.RangeSlider(
+                            id='range-slider_b',
+                            min=0,
+                            max=DURATION,
+                            step=0.001,
+                            value=[0, 3],
+                            updatemode='drag',
+                            # marks={i: "%g" %i for i in np.arange(0, 10, 0.1)},
+                        ),
 
-            html.P("Playback Range: {}", id='output-container-range-slider'),
-            dcc.RangeSlider(
-                id='range-slider',
-                min=0,
-                max=DURATION,
-                step=0.001,
-                value=[0, 3],
-                updatemode='drag',
-                # marks={i: "%g" %i for i in np.arange(0, 10, 0.1)},
-            ),
+                        html.P("Playback Rate:", ),
+                        dcc.Slider(
+                            id='slider-playback-rate_b',
+                            min=0,
+                            max=1.5,
+                            step=None,
+                            updatemode='drag',
+                            marks={i: str(i) + 'x' for i in
+                                   [0, 0.25, 0.5, 0.75, 1, 1.5]},
+                            value=0.25
+                        ),
+                    ]),
+                ],
+                    className="mb-3", )
+            ]
+        ),
 
-
-            html.P("Playback Rate:", style={'margin-top': '20px'}),
-            dcc.Slider(
-                id='slider-playback-rate',
-                min=0,
-                max=1.5,
-                step=None,
-                updatemode='drag',
-                marks={i: str(i) + 'x' for i in
-                       [0, 0.25, 0.5, 0.75, 1, 1.5]},
-                value=0.25
-            ),
-
-        ]
-
-    ),
 
     html.Div(
         style={
@@ -138,11 +151,11 @@ page_1_layout = html.Div([
         },
         children=[
             html.Div(style={'min-height': '70vh'}, children=[
-                dcc.Tabs(id='table-tabs', value='tab-2', children=[
+                dcc.Tabs(id='table-tabs_b', value='tab-2', children=[
                     dcc.Tab(label='Frame Level', value='tab-1'),
                     dcc.Tab(label='Video Level', value='tab-2'),
                 ]),
-                html.Div(id='tabs-content'),
+                html.Div(id='tabs-content_b'),
             ]),
         ]
     ),
@@ -156,7 +169,7 @@ page_1_layout = html.Div([
         children=[
 
             dcc.Graph(
-                id = 'graph-im1',
+                id = 'graph-im1_b',
                 style={'height': '50vh'}
             ),
         ]
@@ -168,11 +181,11 @@ page_1_layout = html.Div([
 ])
 
 
-@app.callback([Output('memory-table', 'data'),
-               Output('memory-output1', 'data'),
-               Output('video-player', 'url'),
-               Output('video-player', 'duration')],
-              Input('memory-video1', 'value'))
+@app.callback([Output('memory-table_b', 'data'),
+               Output('memory-output1_b', 'data'),
+               Output('video-player_b', 'url'),
+               Output('video-player_b', 'duration')],
+              Input('memory-video1_b', 'value'))
 def get_dataframes(video_selected1):
     if not video_selected1 :
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
@@ -193,23 +206,23 @@ def get_dataframes(video_selected1):
     return df_angles.to_json(), data, url1, duration
 
 
-@app.callback(Output('video-player', 'playing'),
-              Input('radio-bool-props', 'value'))
+@app.callback(Output('video-player_b', 'playing'),
+              Input('radio-bool-props_b', 'value'))
 def update_prop_playing(values):
     return 'playing' in values
 
 
-@app.callback(Output('video-player', 'loop'),
-              Input('radio-bool-props', 'value'))
+@app.callback(Output('video-player_b', 'loop'),
+              Input('radio-bool-props_b', 'value'))
 def update_prop_loop(values):
     return 'loop' in values
 
 
 @app.callback(
-    [Output('output-container-range-slider', 'children'),
-     Output('range-slider', 'max')],
-    [Input('range-slider', 'value'),
-     Input('video-player', 'duration')])
+    [Output('output-container-range-slider_b', 'children'),
+     Output('range-slider_b', 'max')],
+    [Input('range-slider_b', 'value'),
+     Input('video-player_b', 'duration')])
 def update_output(value, duration):
     if duration:
         return 'Playback range: "{}"'.format(value), duration
@@ -217,8 +230,8 @@ def update_output(value, duration):
         return 'Playback range: "{}"'.format(value), dash.no_update
 
 
-@app.callback(Output('memory-frame', 'data'),
-              Input('video-player', 'currentTime'))
+@app.callback(Output('memory-frame_b', 'data'),
+              Input('video-player_b', 'currentTime'))
 def update_current_frame(currentTime):
     try:
         frame_no = int(np.round(currentTime / .04))
@@ -227,10 +240,10 @@ def update_current_frame(currentTime):
         return 0
 
 
-@app.callback(Output('video-player', 'seekTo'),
-              Input('video-player', 'currentTime'),
-             [State('range-slider', 'value'),
-              State('video-player', 'duration')])
+@app.callback(Output('video-player_b', 'seekTo'),
+              Input('video-player_b', 'currentTime'),
+             [State('range-slider_b', 'value'),
+              State('video-player_b', 'duration')])
 def update_position(currentTime, value, duration):
     start = list(value)[0]
     end = list(value)[1]
@@ -245,12 +258,12 @@ def update_position(currentTime, value, duration):
         return dash.no_update
 
 
-@app.callback(Output('tabs-content', 'children'),
-              [Input('table-tabs', 'value'),
-               Input('memory-output1', 'data'),
-               Input('memory-table', 'data'),
-               Input('video-player', 'playing')],
-               State('video-player', 'currentTime'))
+@app.callback(Output('tabs-content_b', 'children'),
+              [Input('table-tabs_b', 'value'),
+               Input('memory-output1_b', 'data'),
+               Input('memory-table_b', 'data'),
+               Input('video-player_b', 'playing')],
+               State('video-player_b', 'currentTime'))
 def render_content(tab, dft, df_angles, playing, currentTime):
     try:
         frame_no = int(np.round(currentTime / .04))
@@ -261,7 +274,7 @@ def render_content(tab, dft, df_angles, playing, currentTime):
             return [html.Div([
                 html.H4('Frame #{}'.format(frame_no)),
                 dash_table.DataTable(
-                    id='table-tab1',
+                    id='table-tab1_b',
                     columns=[{"name": i, "id": i, 'type': 'numeric', 'format': Format(precision=2, scheme=Scheme.fixed),} for i in df.columns],
                     data=df.to_dict('records'),
                     style_table={'overflowX': 'scroll'},
@@ -274,10 +287,10 @@ def render_content(tab, dft, df_angles, playing, currentTime):
         return dash.no_update
 
 
-@app.callback(Output('graph-im1', 'figure'),
-              Input('video-player', 'playing'),
-              [State('video-player', 'currentTime'),
-               State('memory-output1', 'data')])
+@app.callback(Output('graph-im1_b', 'figure'),
+              Input('video-player_b', 'playing'),
+              [State('video-player_b', 'currentTime'),
+               State('memory-output1_b', 'data')])
 def update_figure(playing, currentTime, video_frames):
     if not playing and currentTime and currentTime > 0:
 
@@ -350,8 +363,8 @@ def update_figure(playing, currentTime, video_frames):
         return dash.no_update
 
 
-@app.callback(Output('video-player', 'controls'),
-              Input('radio-bool-props', 'value'))
+@app.callback(Output('video-player_b', 'controls'),
+              Input('radio-bool-props_b', 'value'))
 def update_prop_controls(values):
     return 'controls' in values
 
@@ -364,22 +377,22 @@ def update_prop_controls(values):
 #     return value
 
 
-@app.callback(Output('video-player', 'playbackRate'),
-              Input('slider-playback-rate', 'value'))
+@app.callback(Output('video-player_b', 'playbackRate'),
+              Input('slider-playback-rate_b', 'value'))
 def update_playbackRate(value):
     return value
 
 
 # Instance Methods
-@app.callback(Output('div-current-time', 'children'),
-              Input('video-player', 'currentTime'))
+@app.callback(Output('div-current-time_b', 'children'),
+              Input('video-player_b', 'currentTime'))
 def update_time(currentTime):
     return 'Current Time: {}'.format(currentTime)
 
 
-@app.callback(Output('div-method-output', 'children'),
-              Input('video-player', 'secondsLoaded'),
-              State('video-player', 'duration'))
+@app.callback(Output('div-method-output_b', 'children'),
+              Input('video-player_b', 'secondsLoaded'),
+              State('video-player_b', 'duration'))
 def update_methods(secondsLoaded, duration):
     return 'Second Loaded: {}, Duration: {}'.format(secondsLoaded, duration)
 

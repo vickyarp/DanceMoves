@@ -18,7 +18,12 @@ DURATION = 4.105
 page_3_layout = html.Div([
     html.H1('Visual query', style={'text-align': 'center'}),
     html.Br(),
-    dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
+    html.Div([
+        dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
+        dcc.Link(dbc.Button('Interact with one video', size="lg"), href="/page-1"),
+        dcc.Link(dbc.Button('Interact with two videos and find similarity', size="lg"), href="/page-2"),
+
+    ], style={'display': 'flex', 'justify-content': 'center'}),
 
     dbc.Row([
         html.Div(
@@ -28,14 +33,12 @@ page_3_layout = html.Div([
                 'margin': '1% 2% 2% 1%'
             },
             children=[
-                dcc.Store(id='memory-output1'),
-                dcc.Store(id='memory-output2'),
-                dcc.Store(id='memory-table'),
-                dcc.Store(id='current-time1'),
-                dcc.Store(id='current-time2'),
-                dcc.Store(id='memory-frame'),
-                dcc.Store(id='selected-row-state'),
-                dcc.Store(id='selected-points-state'),
+                dcc.Store(id='memory-output1_b'),
+                dcc.Store(id='memory-table_b'),
+                dcc.Store(id='current-time1_b'),
+                dcc.Store(id='memory-frame_b'),
+                dcc.Store(id='selected-row-state_b'),
+                dcc.Store(id='selected-points-state_b'),
 
                 # dcc.Input(
                 #     id='input-url',
@@ -46,13 +49,13 @@ page_3_layout = html.Div([
                     dbc.CardBody([
                         html.P("Choose Main Video:"),
                         dcc.Dropdown(
-                            id='memory-video1',
+                            id='memory-video1_b',
                             options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
                             value='BA_R_WA'
                         ),
 
                         dash_player.DashPlayer(
-                            id='video-player',
+                            id='video-player_b',
                             #url='/assets/TB_F_FB.mp4',#t=npt:2.3,2.9',
                             currentTime= 0,
                             controls=True,
@@ -62,11 +65,11 @@ page_3_layout = html.Div([
                             height='min-content'
                         ),
                         html.Div(
-                            id='div-current-time',
+                            id='div-current-time_b',
                             style={'margin': '10px 0px'}
                         ),
                         html.Div(
-                            id='div-method-output',
+                            id='div-method-output_b',
                             style={'margin': '10px 0px'}
                         ),
                     ]),
@@ -76,7 +79,7 @@ page_3_layout = html.Div([
                 dbc.Card([
                     dbc.CardHeader([
                         dcc.Checklist(
-                            id='radio-bool-props',
+                            id='radio-bool-props_b',
                             options=[{'label': val.capitalize(), 'value': val} for val in [
                                 'playing',
                                 'loop',
@@ -86,9 +89,9 @@ page_3_layout = html.Div([
                             value=['loop', 'muted']
                         ),
 
-                        html.P("Playback Range: {}", id='output-container-range-slider'),
+                        html.P("Playback Range: {}", id='output-container-range-slider_b'),
                         dcc.RangeSlider(
-                            id='range-slider',
+                            id='range-slider_b',
                             min=0,
                             max=DURATION,
                             step=0.001,
@@ -99,7 +102,7 @@ page_3_layout = html.Div([
 
                         html.P("Playback Rate:",),
                         dcc.Slider(
-                            id='slider-playback-rate',
+                            id='slider-playback-rate_b',
                             min=0,
                             max=1.5,
                             step=None,
@@ -113,7 +116,7 @@ page_3_layout = html.Div([
                 className="mb-3",),
                 dbc.Card([
                     dcc.Graph(
-                        id = 'graph-im1',
+                        id= 'graph-im1_b',
                         style={'height': '50vh'}
                     ),
                 ],
@@ -128,27 +131,3 @@ page_3_layout = html.Div([
     html.P(u"\u00A9" + ' Master Project of University of Zurich- Vasiliki Arpatzoglou & Artemis Kardara'
            , style={'text-align': 'center', 'fontSize': 16})
 ])
-
-### Search Query callbacks
-@app.callback(Output('dif-table', 'children'),
-              [Input('memory-video1', 'value'),
-               Input('qsearch-1', 'n_clicks'),
-               Input('qsearch-2', 'n_clicks'),
-               Input('qsearch-3', 'n_clicks')],
-              )
-def render_dif_table(value, click1, click2, click3):
-    # if not click1 or not click2 or not click3 or not value:
-    #     return dash.no_update
-    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    print(changed_id)
-    if 'qsearch-1' in changed_id:
-        pose = POSES_DICT['qsearch-1']['data']
-    elif 'qsearch-2' in changed_id:
-        pose = POSES_DICT['qsearch-2']['data']
-    elif 'qsearch-3' in changed_id:
-            pose = POSES_DICT['qsearch-3']['data']
-    else: return dash.no_update
-
-    df_angles_dif = pose_query(value, pose)
-    df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
-    return render_datatable(df_angles_dif, pagesize=12, dif_table='true')

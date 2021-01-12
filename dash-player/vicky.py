@@ -3,17 +3,15 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-#import new_visualization
-#from page1 import page_1_layout
-# from visualization import similarity_layout
-from page1_clear import page_1_layout
+from visualization import similarity_layout
+from interact_with_one_video import page_1_layout
 from visualquery import page_3_layout
 
 from app import app
 from clustering_new import get_dendogram
 from dataset_info import txt2
 
-# Since we're adding callbacks to elements that don't exist in the app.layout,
+# Since we're adding callbaks to elements that don't exist in the app.layout,
 # Dash will raise an exception to warn us that we might be
 # doing something wrong.
 # In this case, we're adding the elements through a callback, so we can ignore
@@ -66,7 +64,7 @@ index_page = html.Div([
     html.Br(),
     html.A(' Dataset', href='https://figshare.com/articles/dataset/H_Dance_Database/1453169', target='_blank' ,style={'fontSize': 26}),
     html.Br(),
-    dbc.Button("i", id="open-backdrop",size= 'sm'),
+    dbc.Button("i", id="open-backdrop",size= 'lg',style={'font-weight': 'bold' }),
     dbc.Modal(
             [
                 dbc.ModalHeader("Video namings"),
@@ -141,8 +139,8 @@ def display_page(pathname):
     if pathname == '/page-1':
         return page_1_layout
 
-    # elif pathname == '/page-2':
-    #     return similarity_layout
+    elif pathname == '/page-2':
+         return similarity_layout
     elif pathname == '/page-3':
         return page_3_layout
     else:
