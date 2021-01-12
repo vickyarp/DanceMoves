@@ -220,23 +220,43 @@ def angle_to_bodyparts(angle_names=[]):
     for angle_name in angle_names:
         for key, value in BODY_SEGMENTS.items():
             if key in angle_name:
-                bodyparts.append(value)
+                bodyparts.append(key)
     return bodyparts
 
 
 def bodyparts_to_angles(bodyparts_names=[]):
     angles = []
     for bodypart in bodyparts_names:
-        for key, value in BODYPART_INDEX.values():
+        for key, value in BODYPART_INDEX.items():
             if bodypart in value:
                 angles.append(value)
     return angles
 
-def update_selected_state(state={'angles': [], 'bodyparts': []}, angle_names=[], bodyparts_names=[]):
+def angles_to_ids(angle_names=[]):
+    ids = []
+    for angle_name in angle_names:
+        for key, value in BODYPART_INDEX.items():
+            if angle_name == value:
+                ids.append(key)
+    return ids
+
+def angle_ids_to_angles(angle_ids=[]):
+    angles = []
+    for id in angle_ids:
+        angles.append(BODYPART_INDEX[id])
+    return angles
+
+def bodyparts_to_ids(bodyparts_names=[]):
+    ids = []
+    for bodypart in bodypart_names:
+        ids.append(BODY_SEGMENTS[bodypart][0])
+        ids.append(BODY_SEGMENTS[bodypart][1])
+    return list(set(ids))
+def update_selected_state(state={'angles': [], 'bodyparts': []}, angle_names=[], bodypart_names=[]):
     new_bodyparts = angle_to_bodyparts(angle_names)
-    new_angles = bodyparts_to_angles(bodyparts_names)
-    state.bodyparts = list(set(state.bodyparts + new_bodyparts))
-    state.angles = list(set(state.angles + new_angles))
+    new_angles = bodyparts_to_angles(bodypart_names)
+    state['bodyparts'] = list(set(state['bodyparts'] + new_bodyparts + bodypart_names))
+    state['angles'] = list(set(state['angles'] + new_angles + angle_names))
     return state
 
 
@@ -275,7 +295,6 @@ BODYPART_INDEX_CANONICAL = {
     21: 'left_foot_to_left_lower_leg',
     22: 'left_foot_to_left_ankle_to_heel',
     23: 'left_foot_to_left_toes',
-
 }
 
 def get_thumbnail(path):
@@ -288,37 +307,6 @@ def get_thumbnail(path):
     return (html.Img(src='data:image/png;base64,{}'.format(encoded_image)))
 
 # image = get_thumbnail('thumb.png')
-# BODYPART_THUMBS = [
-#     image,
-#     image,
-#     image,
-#     image,
-#     image,
-#     image,
-#     image,
-#     image,
-#     image,
-#     image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-#      image,
-# ]
 
 BODYPART_THUMBS = [
     '![myImage-1](assets/thumbnails/nose_to_neck_to_left_shoulder.png)',
@@ -390,3 +378,7 @@ POSES_DICT = {
     'qsearch-3': {'src': 'SYN_K_frame22.png', 'data': 'SYN_K_000000000022_keypoints.json'},
 
 }
+
+
+if __name__ == '__main__':
+    test = update_selected_state(bodypart_names=['right_upper_arm', 'right_lower_arm'])

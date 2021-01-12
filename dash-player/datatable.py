@@ -7,7 +7,6 @@ from utils import BODYPART_THUMBS_SMALL
 
 
 def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10, dif_table='false', selected_rows=[]):
-    print('selected rows: {}'.format(selected_rows))
     if not selected_rows: selected_rows = []
 
     # Apply table styles
@@ -93,7 +92,7 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
             )),
             html.Div(legend, style={'float': 'right'}),
             dash_table.DataTable(
-                id='table-tab2-main',
+                id={ 'type': 'datatable', 'id': 'table-tab2-main'},
                 columns=[
                             {'name': 'angles', 'id': 'angles', 'presentation': 'markdown'}] + [
                             {
