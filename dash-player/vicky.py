@@ -115,7 +115,7 @@ index_page = html.Div([
     html.P(u"\u00A9"+' Master Project of University of Zurich- Vasiliki Arpatzoglou & Artemis Kardara'
            , style={'text-align': 'center', 'fontSize': 16})
 
-], style={'textAlign': 'center','margin':'auto','width': "50%"})
+], style={'textAlign': 'center','margin':'auto','width': "50%", 'background-image': 'url(https://img.freepik.com/free-vector/3d-perspective-style-diamond-shape-white-background_1017-27556.jpg?size=626&ext=jpg)'})
 
 
 @app.callback(
@@ -130,11 +130,9 @@ def toggle_fade(n, is_in):
     return not is_in
 
 
-
-
 # Update the index
-@app.callback(dash.dependencies.Output('page-content', 'children'),
-              [dash.dependencies.Input('url', 'pathname')])
+@app.callback(Output('page-content', 'children'),
+              [Input('url', 'pathname')])
 def display_page(pathname):
     if pathname == '/page-1':
         return page_1_layout

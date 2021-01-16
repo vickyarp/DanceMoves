@@ -1,30 +1,42 @@
 import dash_html_components as html
 from utils import BODYPART_INDEX
 import plotly.express as px
-viridis = [
- # '#440154',
- # '#482878',
- '#3e4989',
- # '#31688e',
- # '#26828e',
- '#1f9e89',
- '#35b779',
- # '#6ece58',
- # '#b5de2b',
- '#fde725'
+
+Sand = [
+    '#fbefcc',
+    '#f9ccac',
+    '#f4a688',
+    '#e0876a'
+]
+
+Else = [
+    '#fef0d9',
+    '#fdcc8a',
+    '#fc8d59',
+    '#d7301f',
 ]
 
 
-#     '#f0f9e8',
-colormap = [
+Blue = [
     '#ddeedd',
     '#bae4bc',
     '#7bccc4',
     '#2b8cbe',
 ]
 
-def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[]):
-    import colorlover
+Green = [
+    '#edf8fb',
+    '#b2e2e2',
+    '#66c2a4',
+    '#238b45',
+]
+
+
+
+
+def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[], colormap = Blue):
+
+
     bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
     if columns == 'all':
         if 'id' in df:
@@ -85,6 +97,7 @@ def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[]):
         )
     return (styles, html.Div(legend, style={'padding': '5px 0 5px 0'}))
 
+
 def highlight_current_frame(frame_no):
     header_styles = []
     header_styles.append({
@@ -95,6 +108,7 @@ def highlight_current_frame(frame_no):
     })
     styles = {'if': {'column_id': 'Frame:{}'.format(frame_no), }, 'border-right': '3px black solid', 'border-left': '3px black solid'}
     return header_styles, styles
+
 
 def tooltip_angles(bodyparts=BODYPART_INDEX, type='angles'):
     tooltip = []

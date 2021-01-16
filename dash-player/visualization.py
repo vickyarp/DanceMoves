@@ -49,16 +49,22 @@ def create_coordinate_df(points_with_confidence):
         df.iloc[:,i] = pd.Series(points_with_confidence[mask])
     return df
 
-
-
 # keypoints = get_keypoints('TB_F_FB')
 # video_frames = []
 # for frame in keypoints:
 #     df = create_coordinate_df(frame)
 #     video_frames.append(df)
 
+
 similarity_layout = html.Div([
     html.H2('Visual Analysis of Dance Moves', style={'text-align': 'center'}),
+    html.Br(),
+    html.Div([
+        dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
+        dcc.Link(dbc.Button('Interact with one video', size="lg"), href="/page-1"),
+        dcc.Link(dbc.Button('Interact with two videos and find similarity', size="lg"), href="/page-2"),
+
+    ], style={'display': 'flex', 'justify-content': 'center'}),
     dbc.Row([
     html.Div(
         style={
@@ -149,8 +155,7 @@ similarity_layout = html.Div([
                         value=0.25
                     ),
                 ]),
-            ],
-            className="mb-3",),
+            ], className="mb-3",),
 
 
             # html.P("Update Interval for Current Time:", style={'margin-top': '30px'}),
@@ -187,8 +192,7 @@ similarity_layout = html.Div([
                         # style={'margin': '10px 0px'}
                     ),
                 ])
-            ],
-            className="mb-3",
+            ], className="mb-3",
             )
         ]
     ),
@@ -204,7 +208,6 @@ similarity_layout = html.Div([
                 dcc.Tabs(id='table-tabs', value='tab-2', children=[
                     dcc.Tab(label='Frame Level', value='tab-1'),
                     dcc.Tab(label='Video Level', value='tab-2'),
-                    dcc.Tab(label='Dataset level', value='tab-3'),
                 ]),
                 html.Div(id='tabs-content'),
             ]),
@@ -242,8 +245,11 @@ similarity_layout = html.Div([
         ]
     ),
 ]),
-secondPage()
+    html.Br(),
+    html.P(u"\u00A9" + ' Master Project of University of Zurich- Vasiliki Arpatzoglou & Artemis Kardara'
+           , style={'text-align': 'center', 'fontSize': 16})
 ])
+
 
 @app.callback([Output('memory-table', 'data'),
                Output('memory-output1', 'data'),
@@ -279,6 +285,7 @@ def get_dataframes(video_selected1, video_selected2):
     similarity = overall_similarity(angles1, angles2)
     return df_angles.to_json(), data, url1, data2, url2, duration, similarity
 
+
 @app.callback([Output('video-player', 'playing'),
                Output('video-player2', 'playing')],
               [Input('radio-bool-props', 'value')])
@@ -304,6 +311,7 @@ def update_output(value, duration):
     else:
         return 'Playback range: "{}"'.format(value), dash.no_update
 
+
 @app.callback(Output('memory-frame', 'data'),
               Input('video-player', 'currentTime'))
 def update_current_frame(currentTime):
@@ -313,6 +321,7 @@ def update_current_frame(currentTime):
         return frame_no
     except:
         return 0
+
 
 @app.callback([Output('video-player', 'seekTo'),
                Output('video-player2', 'seekTo')],
@@ -345,6 +354,7 @@ def update_position(currentTime, value, currentTime2, duration):
 #
 #         # return [{"name": i, "id": i} for i in df1.columns]
 #     else: return dash.no_update
+
 
 @app.callback(Output('tabs-content', 'children'),
               [Input('table-tabs', 'value'),
@@ -393,6 +403,7 @@ def render_content(tab, dft, df_angles, playing, selected_rows, currentTime):
                State('memory-output1', 'data'),
                State('memory-video1', 'value'),
                State('graph-im1', 'figure')])
+
 # def update_figure(playing, selectedData, clickData, restyleData, n_clicks, selected_points, currentTime, video_frames, video1, fig):
 def update_figure(playing, restyleData, n_clicks, selected_points, currentTime, video_frames, video1, fig):
 
@@ -545,6 +556,8 @@ def update_prop_controls(values):
 @app.callback([Output('video-player', 'playbackRate'),
               Output('video-player2', 'playbackRate')],
               [Input('slider-playback-rate', 'value')])
+
+
 def update_playbackRate(value):
     return value, value
 
@@ -564,39 +577,39 @@ def update_time(currentTime, currentTime2):
 def update_methods(secondsLoaded, duration):
     return 'Second Loaded: {}, Duration: {}'.format(secondsLoaded, duration)
 
-@app.callback(
-    Output("modal-centered", "is_open"),
-    [Input("open-centered", "n_clicks"), Input("close-centered", "n_clicks")],
-    [State("modal-centered", "is_open")],
-)
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
+# @app.callback(
+#     Output("modal-centered", "is_open"),
+#     [Input("open-centered", "n_clicks"), Input("close-centered", "n_clicks")],
+#     [State("modal-centered", "is_open")],
+# )
+# def toggle_modal(n1, n2, is_open):
+#     if n1 or n2:
+#         return not is_open
+#     return is_open
 
 ### Search Query callbacks
-@app.callback(Output('dif-table', 'children'),
-              [Input('memory-video1', 'value'),
-               Input('qsearch-1', 'n_clicks'),
-               Input('qsearch-2', 'n_clicks'),
-               Input('qsearch-3', 'n_clicks')],
-              )
-def render_dif_table(value, click1, click2, click3):
-    # if not click1 or not click2 or not click3 or not value:
-    #     return dash.no_update
-    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    print(changed_id)
-    if 'qsearch-1' in changed_id:
-        pose = POSES_DICT['qsearch-1']['data']
-    elif 'qsearch-2' in changed_id:
-        pose = POSES_DICT['qsearch-2']['data']
-    elif 'qsearch-3' in changed_id:
-        pose = POSES_DICT['qsearch-3']['data']
-    else: return dash.no_update
-
-    df_angles_dif = pose_query(value, pose)
-    df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
-    return render_datatable(df_angles_dif, pagesize=12, dif_table='true')
+# @app.callback(Output('dif-table', 'children'),
+#               [Input('memory-video1', 'value'),
+#                Input('qsearch-1', 'n_clicks'),
+#                Input('qsearch-2', 'n_clicks'),
+#                Input('qsearch-3', 'n_clicks')],
+#               )
+# def render_dif_table(value, click1, click2, click3):
+#     # if not click1 or not click2 or not click3 or not value:
+#     #     return dash.no_update
+#     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+#     print(changed_id)
+#     if 'qsearch-1' in changed_id:
+#         pose = POSES_DICT['qsearch-1']['data']
+#     elif 'qsearch-2' in changed_id:
+#         pose = POSES_DICT['qsearch-2']['data']
+#     elif 'qsearch-3' in changed_id:
+#         pose = POSES_DICT['qsearch-3']['data']
+#     else: return dash.no_update
+#
+#     df_angles_dif = pose_query(value, pose)
+#     df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
+#     return render_datatable(df_angles_dif, pagesize=12, dif_table='true')
 
 # ### Datatable Callbacks
 # @app.callback(Output('table-tab2-main', 'selected_rows'),
@@ -605,58 +618,64 @@ def render_dif_table(value, click1, click2, click3):
 #     # print('Frame:{}'.format(frame_no))
 #     return [0]
 
-@app.callback(Output('selected-points-state', 'data'),
-              [Input({'type': 'datatable',  'id': ALL}, 'selected_rows'),
-               Input('graph-im1', 'selectedData'),
-               Input('reset-selection', 'n_clicks')],
-              [State('selected-points-state', 'data'),
-               State('graph-im1', 'figure')])
-def update_selected_rows(selected_rows, selectedData, n_clicks, selected_points, fig):
-    default_state = {'angles': [], 'bodyparts': []}
-    if selected_points == None: selected_points = default_state
-    ctx = dash.callback_context
-    # print('616: {}'.format( ctx.triggered[0]['prop_id']))
-    if ctx.triggered[0]['prop_id'] == 'reset-selection.n_clicks':
-        if n_clicks is None:
-            return dash.no_update
-        else:
-            return default_state
-    elif ctx.triggered[0]['prop_id'] == 'graph-im1.selectedData':
-        selection = [point["curveNumber"] for point in selectedData["points"]]
-        selection_names = [fig["data"][curve_number]['name'] for curve_number in selection]
-        selected_points = update_selected_state(state=selected_points, bodypart_names=selection_names)
-        print('state: {}'. format(selected_points))
-        return selected_points
-    elif ctx.triggered[0]['prop_id'] == '{"id":"table-tab2-main","type":"datatable"}.selected_rows':
-        print(selected_rows[0])
-        angles = angle_ids_to_angles(selected_rows[0])
-        print(angles)
-        selected_points = update_selected_state(state=selected_points, angle_names=angles)
-        print('state: {}'.format(selected_points))
-        return selected_points
-    else:
-        return default_state
 
 
-@app.callback(Output({"id":"table-tab2-main","type":"datatable"}, 'selected_rows'),
-              Input('graph-im1', 'figure.data'),
-              State('selected-points-state', 'data'))
-def update_selected_row_state(_, selected_points):
-    print('here')
-    print(selected_points)
-    default_state = {'angles': [], 'bodyparts': []}
 
-    if selected_points is None:
-        return dash.no_update
-    elif selected_points == default_state:
-        return []
-    else:
-        try:
-            print('606: '.format(selected_points['angles']))
-            return angles_to_ids(selected_points['angles'])
-        except Exception as e:
-            print(e)
-            return dash.no_update
+#COMMENTS BECAUSE OF DUBLE INITIALIZATION
+#CALLBACKS FOR FIGURE
+
+# @app.callback(Output('selected-points-state', 'data'),
+#               [Input({'type': 'datatable',  'id': ALL}, 'selected_rows'),
+#                Input('graph-im1', 'selectedData'),
+#                Input('reset-selection', 'n_clicks')],
+#               [State('selected-points-state', 'data'),
+#                State('graph-im1', 'figure')])
+# def update_selected_rows(selected_rows, selectedData, n_clicks, selected_points, fig):
+#     default_state = {'angles': [], 'bodyparts': []}
+#     if selected_points == None: selected_points = default_state
+#     ctx = dash.callback_context
+#     # print('616: {}'.format( ctx.triggered[0]['prop_id']))
+#     if ctx.triggered[0]['prop_id'] == 'reset-selection.n_clicks':
+#         if n_clicks is None:
+#             return dash.no_update
+#         else:
+#             return default_state
+#     elif ctx.triggered[0]['prop_id'] == 'graph-im1.selectedData':
+#         selection = [point["curveNumber"] for point in selectedData["points"]]
+#         selection_names = [fig["data"][curve_number]['name'] for curve_number in selection]
+#         selected_points = update_selected_state(state=selected_points, bodypart_names=selection_names)
+#         print('state: {}'. format(selected_points))
+#         return selected_points
+#     elif ctx.triggered[0]['prop_id'] == '{"id":"table-tab2-main","type":"datatable"}.selected_rows':
+#         print(selected_rows[0])
+#         angles = angle_ids_to_angles(selected_rows[0])
+#         print(angles)
+#         selected_points = update_selected_state(state=selected_points, angle_names=angles)
+#         print('state: {}'.format(selected_points))
+#         return selected_points
+#     else:
+#         return default_state
+#
+#
+# @app.callback(Output({"id":"table-tab2-main","type":"datatable"}, 'selected_rows'),
+#               Input('graph-im1', 'figure.data'),
+#               State('selected-points-state', 'data'))
+# def update_selected_row_state(_, selected_points):
+#     print('here')
+#     print(selected_points)
+#     default_state = {'angles': [], 'bodyparts': []}
+#
+#     if selected_points is None:
+#         return dash.no_update
+#     elif selected_points == default_state:
+#         return []
+#     else:
+#         try:
+#             print('606: '.format(selected_points['angles']))
+#             return angles_to_ids(selected_points['angles'])
+#         except Exception as e:
+#             print(e)
+#             return dash.no_update
 
 
 if __name__ == '__main__':

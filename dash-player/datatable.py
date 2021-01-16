@@ -1,16 +1,22 @@
 import dash_table
+import dash
 from dash_table.Format import Format, Scheme
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
+from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles, Blue, Sand, Else, Green
 from utils import BODYPART_THUMBS_SMALL
+import dash_core_components as dcc
+from dash.dependencies import Input, Output
+from app import app
+import pandas as pd
 
 
-def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10, dif_table='false', selected_rows=[]):
+
+def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10, dif_table='false', selected_rows=[] , colormap = Blue ):
     if not selected_rows: selected_rows = []
 
     # Apply table styles
-    (styles, legend) = heatmap_table_format(df_angles, selected_rows=selected_rows)
+    (styles, legend) = heatmap_table_format(df_angles, selected_rows=selected_rows, colormap = colormap)
     styles_header = []
     if frame_no != 'false':
         styles_header, extra_styles = highlight_current_frame(frame_no)
@@ -39,11 +45,13 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 data=df_angles.to_dict('records'),
                 fixed_columns={'headers': True, 'data': 1},
                 style_data={'font-size': '10px', 'text-align': 'center'},
-                style_table={ 'max-width': '100%', 'min-height': '80vh'},
+                style_table={'max-width': '100%', 'min-height': '80vh'},
                 style_data_conditional=styles,
                 tooltip_data=tooltip_angles(type='angles_small'),
                 tooltip_delay=0,
-                tooltip_duration=None
+                tooltip_duration=None,
+                export_format='csv',
+                export_headers='names',
             ),
         ])
     # Difference table case
@@ -92,7 +100,7 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
             )),
             html.Div(legend, style={'float': 'right'}),
             dash_table.DataTable(
-                id={ 'type': 'datatable', 'id': 'table-tab2-main'},
+                id={'type': 'datatable', 'id': 'table-tab2-main'},
                 columns=[
                             {'name': 'angles', 'id': 'angles', 'presentation': 'markdown'}] + [
                             {
@@ -106,6 +114,9 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 style_data={'font-size': '18px', 'text-align': 'center',
                             'p': {'margin-block-start': '0px', 'margin-block-end': '0px'}},
                 style_table={'overflowX': 'scroll', 'max-width': '100%'},
+                style_header={
+                    'fontWeight': 'bold'
+                },
                 style_cell={},
                 row_selectable='multi',
                 selected_rows=selected_rows,
@@ -114,7 +125,7 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 style_header_conditional=styles_header,
                 tooltip_data=tooltip_angles(),
                 tooltip_delay=0,
-                tooltip_duration=None
+                tooltip_duration=None,
             ),
         ])
 
@@ -122,3 +133,4 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
 def render_frame_header(frame_no):
     if frame_no != 'false': return html.H4('Current Frame: #{}'.format(frame_no), style={'marginTop': '1%'})
     else: return html.H4()
+
