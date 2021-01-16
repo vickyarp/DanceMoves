@@ -3,6 +3,8 @@ import dash
 from dash_table.Format import Format, Scheme
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
+from utils import BODYPART_THUMBS_SMALL, BODYPART_THUMBS_TINY
 from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles, Blue, Sand, Else, Green
 from utils import BODYPART_THUMBS_SMALL
 import dash_core_components as dcc
@@ -11,8 +13,7 @@ from app import app
 import pandas as pd
 
 
-
-def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10, dif_table='false', selected_rows=[] , colormap = Blue ):
+def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10, dif_table='false', mode='', selected_rows=[], colormap=Blue):
     if not selected_rows: selected_rows = []
 
     # Apply table styles
@@ -52,6 +53,45 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 tooltip_duration=None,
                 export_format='csv',
                 export_headers='names',
+            ),
+        ])
+    # Pixel table case
+    if mode == 'pixel':
+        # df_angles.insert(0, 'angles_tiny', BODYPART_THUMBS_TINY, True)
+        return html.Div([
+            html.Div(dbc.ButtonGroup(
+                [dbc.Button("Head"), dbc.Button("Torso"), dbc.Button("Arms"), dbc.Button("Legs"), dbc.Button("Feet")],
+                size="md",
+                className="mr-1",
+            )),
+            html.Div(legend, style={'float': 'right'}),
+            dash_table.DataTable(
+                id='pixel-table-1',
+                columns=[
+                            {'name': '', 'id': 'angles_tiny', 'presentation': 'markdown'}] + [
+                            {
+                                'name': '',
+                                'id': i,
+                                'type': 'numeric',
+                                'format': Format(precision=0, scheme=Scheme.fixed),
+                            } for i in df_angles.iloc[:, 3:].columns],
+                data=df_angles.to_dict('records'),
+                fixed_columns={'headers': True, 'data': 1},
+                css=[{
+                    'selector': '.dash-spreadsheet tr',
+                    'rule': '''
+                    max-height: 13px; min-height: 13px; height: 13px;
+                    display: block;
+                    overflow-y: hidden;
+                '''
+                }],
+                style_data={'font-size': '0px', 'text-align': 'center', 'lineHeight': '1px'},
+                style_table={'max-width': '100%', 'min-width': '100%'},
+                style_cell={'max-width': '15px', 'min-width': '15px', 'width': '15px'},
+                style_data_conditional=styles,
+                tooltip_data=tooltip_angles(type='angles_small'),
+                tooltip_delay=0,
+                tooltip_duration=None
             ),
         ])
     # Difference table case

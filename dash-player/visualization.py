@@ -1,3 +1,4 @@
+import time
 import dash_player
 import dash
 import dash_html_components as html
@@ -235,12 +236,16 @@ similarity_layout = html.Div([
 
             dcc.Graph(
                 id = 'graph-im1',
-                style={'height': '50vh'}
+                style={'height': '50vh'},
             ),
-            html.Div([dbc.Button("Reset", id="reset-selection")],style={ 'display': 'flex', 'justify-content': 'center'}),
+            html.Div(
+                children=[dbc.Button("Update", id="update-selection", style={ 'margin': '5px' }),
+                 dbc.Button("Reset", id="reset-selection", style={ 'margin': '5px' })],
+                style={ 'display': 'flex', 'justify-content': 'center'}
+            ),
             dcc.Graph(
                 id = 'graph-im2',
-                style={'height': '50vh'}
+                style={'height': '50vh'},
             ),
         ]
     ),
@@ -326,20 +331,34 @@ def update_current_frame(currentTime):
 @app.callback([Output('video-player', 'seekTo'),
                Output('video-player2', 'seekTo')],
               [Input('video-player', 'currentTime'),
-              ],# Input('range-slider', 'value')],
-             [State('range-slider', 'value'),
+              Input('range-slider', 'value')],
+             [
                State('video-player2', 'currentTime'),
-              State('video-player', 'duration')])
-def update_position(currentTime, value, currentTime2, duration):
+              State('video-player', 'duration'),
+              State('video-player', 'playing')])
+def update_position(currentTime, value, currentTime2, duration, playing):
     start = list(value)[0]
     end = list(value)[1]
-    if currentTime and currentTime >= end:
-        if currentTime > 1:
+
+    ctx = dash.callback_context
+    if ctx.triggered[0]['prop_id'] == 'range-slider.value':
+        if not playing and currentTime > 1:
             return start, start
-        else:
+        elif not playing:
             percentage = (start / duration)
             return percentage, percentage
-            # return 0, 0
+        else:
+            dash.no_update, dash.no_update
+    elif ctx.triggered[0]['prop_id'] == 'video-player.currentTime':
+        if currentTime and currentTime >= end:
+            if currentTime > 1:
+                return start, start
+            else:
+                percentage = (start / duration)
+                return percentage, percentage
+                # return 0, 0
+        else:
+            return dash.no_update, dash.no_update
     else:
         return dash.no_update, dash.no_update
 
@@ -361,14 +380,13 @@ def update_position(currentTime, value, currentTime2, duration):
                Input('memory-output1', 'data'),
                Input('memory-table', 'data'),
                Input('video-player', 'playing'),
+               Input('memory-frame', 'data'),
                Input('selected-row-state', 'data')],
                [State('video-player', 'currentTime')])
-def render_content(tab, dft, df_angles, playing, selected_rows, currentTime):
+def render_content(tab, dft, df_angles, playing, frame_no, selected_rows, currentTime):
     try:
-        frame_no = int(np.round(currentTime / .04))
-
         if tab == 'tab-1':
-            df = dft[int(np.round(currentTime / .04))]
+            df = dft[frame_no]
             df = pd.read_json(df)
             return [html.Div([
                 html.H4('Frame #{}'.format(frame_no)),
@@ -382,6 +400,7 @@ def render_content(tab, dft, df_angles, playing, selected_rows, currentTime):
         elif tab == 'tab-2':
             df_angles = pd.read_json(df_angles)
             return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
+            # return render_datatable(df_angles, frame_no, selected_rows=selected_rows, mode='pixel'), modal(df_angles, frame_no),
 
         elif tab == 'tab-3':
             return html.Div(
@@ -394,74 +413,77 @@ def render_content(tab, dft, df_angles, playing, selected_rows, currentTime):
 
 @app.callback(Output('graph-im1', 'figure'),
               [Input('video-player', 'playing'),
+               Input('memory-frame', 'data'),
                # Input('graph-im1', 'selectedData'),
                # Input('graph-im1', 'clickData'),
                Input('graph-im1', 'restyleData'),
                Input('reset-selection', 'n_clicks'),
                Input('selected-points-state', 'data')],
-              [State('video-player', 'currentTime'),
-               State('memory-output1', 'data'),
+              [State('memory-output1', 'data'),
                State('memory-video1', 'value'),
                State('graph-im1', 'figure')])
-
 # def update_figure(playing, selectedData, clickData, restyleData, n_clicks, selected_points, currentTime, video_frames, video1, fig):
-def update_figure(playing, restyleData, n_clicks, selected_points, currentTime, video_frames, video1, fig):
-
+def update_figure(playing, frame_no, restyleData, n_clicks, selected_points, video_frames, video1, fig):
     ctx = dash.callback_context
-    if ctx.triggered[0]['prop_id'] == 'video-player.playing':
-        if not playing and currentTime and currentTime > 0:
-            # points = get_coordinates(keypoints[int(np.round(1/.04))])
-            df = pd.read_json(video_frames[int(np.round(currentTime/.04))])
-            return render_stick_figure(df, video1)
+    try:
+        if ctx.triggered[0]['prop_id'] in ['video-player.playing', 'memory-frame.data']:
+            try:
+                if not playing and frame_no:
+                    # points = get_coordinates(keypoints[int(np.round(1/.04))])
+                    df = pd.read_json(video_frames[frame_no])
+                    return render_stick_figure(df, video1)
 
-        else: return dash.no_update
-    # elif ctx.triggered[0]['prop_id'] == 'reset-selection.n_clicks':
-    #     if n_clicks is None:
-    #         raise dash.PreventUpdate
-    #     else:
-    #         default_state = {'angles': [], 'bodyparts': []}
-    #         df = pd.read_json(video_frames[int(np.round(currentTime / .04))])
-    #         return render_stick_figure(df, video1), default_state
-    else:
-        try:
-            # initialize state
-            if selected_points == None : selected_points = {'angles': [], 'bodyparts': []}
-            selection = None
+                else: return dash.no_update
+            except:
+                return dash.no_update
+        # elif ctx.triggered[0]['prop_id'] == 'reset-selection.n_clicks':
+        #     if n_clicks is None:
+        #         raise dash.PreventUpdate
+        #     else:
+        #         default_state = {'angles': [], 'bodyparts': []}
+        #         df = pd.read_json(video_frames[int(np.round(currentTime / .04))])
+        #         return render_stick_figure(df, video1), default_state
+        else:
+            try:
+                # initialize state
+                if selected_points == None : selected_points = {'angles': [], 'bodyparts': []}
+                selection = None
 
-            # Update selection based on which event triggered the update.
-            trigger = dash.callback_context.triggered[0]['prop_id']
-            # print(trigger)
-            # if trigger == 'graph-im1.clickData':
-            #     selection = [point["curveNumber"] for point in clickData["points"]]
-            #     print(selection)
-            #     for curve_number in selection:
-            #         # fig["data"][curve_number]["selectedpoints"] = selection
-            #         fig["data"][curve_number]["line"]["color"] = 'black'
-            # if trigger == 'graph-im1.selectedData':
-            #     selection = [point["curveNumber"] for point in selectedData["points"]]
-            #     selection_names = [fig["data"][curve_number]['name'] for curve_number in selection]
-            #
-            #     for curve_number in selection:
-            #         # fig["data"][curve_number]["selectedpoints"] = selection
-            #         fig["data"][curve_number]["line"]["color"] = 'black'
-            #     selected_points = update_selected_state(state=selected_points, bodypart_names=selection_names)
-            #     return fig
+                # Update selection based on which event triggered the update.
+                trigger = dash.callback_context.triggered[0]['prop_id']
+                # print(trigger)
+                # if trigger == 'graph-im1.clickData':
+                #     selection = [point["curveNumber"] for point in clickData["points"]]
+                #     print(selection)
+                #     for curve_number in selection:
+                #         # fig["data"][curve_number]["selectedpoints"] = selection
+                #         fig["data"][curve_number]["line"]["color"] = 'black'
+                # if trigger == 'graph-im1.selectedData':
+                #     selection = [point["curveNumber"] for point in selectedData["points"]]
+                #     selection_names = [fig["data"][curve_number]['name'] for curve_number in selection]
+                #
+                #     for curve_number in selection:
+                #         # fig["data"][curve_number]["selectedpoints"] = selection
+                #         fig["data"][curve_number]["line"]["color"] = 'black'
+                #     selected_points = update_selected_state(state=selected_points, bodypart_names=selection_names)
+                #     return fig
 
-            if trigger == 'graph-im1.restyleData':
-                print(restyleData)
-                # print(selectedData)
+                if trigger == 'graph-im1.restyleData':
+                    print(restyleData)
+                    # print(selectedData)
 
-            if trigger == 'selected-points-state.data':
-                for bodypart in selected_points['bodyparts']:
-                    curve = next(filter(lambda x: x['name'] == bodypart,  fig["data"]))
-                    curve_number = fig["data"].index(curve)
-                    fig["data"][curve_number]["line"]["color"] = 'black'
-            # fig["data"][0]["selectedpoints"] = selection
-            return fig
-        except TypeError as e:
-            print(e)
-            return dash.no_update
-
+                if trigger == 'selected-points-state.data':
+                    for bodypart in selected_points['bodyparts']:
+                        curve = next(filter(lambda x: x['name'] == bodypart,  fig["data"]))
+                        curve_number = fig["data"].index(curve)
+                        fig["data"][curve_number]["line"]["color"] = 'black'
+                # fig["data"][0]["selectedpoints"] = selection
+                return fig
+            except TypeError as e:
+                print(e)
+                return dash.no_update
+    except:
+        return dash.no_update
 
 # @app.callback(Output("graph-im1", "figure"), [Input("graph-im1", "selectedData"), Input("graph-im1", "clickData")],
 #               [State("graph-im1", "figure")])

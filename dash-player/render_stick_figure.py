@@ -86,6 +86,20 @@ def render_stick_figure(df, video):
     fig.layout.hoverdistance = 1  # ensures no "gaps" for selecting sparse data
     # fig.layout.plot_bgcolor='black'
     fig.layout.uirevision = video
+    fig.add_layout_image(
+        dict(
+            source="https://images.plot.ly/language-icons/api-home/python-logo.png",
+            xref="x",
+            yref="y",
+            x=0,
+            y=3,
+            sizex=2,
+            sizey=2,
+            sizing="stretch",
+            opacity=1,
+            layer="below")
+    )
+    # fig.add_layout_image(dict(source="assets/thumbnails/background.png"))
 
     img_width_min = df.x[df.x != 0].min()
     img_height = round(df.y.max())

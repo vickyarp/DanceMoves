@@ -372,6 +372,38 @@ BODYPART_THUMBS_SMALL = [
     '![myImage-29](assets/thumbnails/small/torso_to_left_hip.png)'
 ]
 
+BODYPART_THUMBS_TINY = [
+    '![myImage-1](assets/thumbnails/tiny/nose_to_neck_to_left_shoulder.png)',
+    '![myImage-2](assets/thumbnails/tiny/nose_to_neck_to_right_shoulder.png)',
+    '![myImage-3](assets/thumbnails/tiny/left_shoulder_to_right_shoulder.png)',
+    '![myImage-4](assets/thumbnails/tiny/left_shoulder_to_left_upper_arm.png)',
+    '![myImage-5](assets/thumbnails/tiny/left_lower_arm_to_left_upper_arm.png)',
+    '![myImage-6](assets/thumbnails/tiny/right_upper_arm_to_right_shoulder.png)',
+    '![myImage-7](assets/thumbnails/tiny/right_upper_arm_to_right_lower_arm.png)',
+    '![myImage-8](assets/thumbnails/tiny/left_eye_to_nose_to_left_ear_to_eye.png)',
+    '![myImage-9](assets/thumbnails/tiny/left_eye_to_nose_to_neck.png)',
+    '![myImage-10](assets/thumbnails/tiny/nose_to_neck_to_right_eye_to_nose.png)',
+    '![myImage-11](assets/thumbnails/tiny/left_eye_to_nose_to_right_ear_to_eye.png)',
+    '![myImage-12](assets/thumbnails/tiny/right_eye_to_nose_to_right_ear_to_eye.png)',
+    '![myImage-13](assets/thumbnails/tiny/right_hip_to_right_upper_leg.png)',
+    '![myImage-14](assets/thumbnails/tiny/right_upper_leg_to_right_lower_leg.png)',
+    '![myImage-15](assets/thumbnails/tiny/left_hip_to_left_upper_leg.png)',
+    '![myImage-16](assets/thumbnails/tiny/left_upper_leg_to_left_lower_leg.png)',
+    '![myImage-17](assets/thumbnails/tiny/left_lower_leg_left_ankle_to_heel.png)',
+    '![myImage-18](assets/thumbnails/tiny/right_lower_leg_to_right_ankle_to_heel.png)',
+    '![myImage-19](assets/thumbnails/tiny/right_foot_to_right_toes.png)',
+    '![myImage-20](assets/thumbnails/tiny/right_foot_to_right_lower_leg.png)',
+    '![myImage-21](assets/thumbnails/tiny/right_foot_to_right_ankle_to_heel.png)',
+    '![myImage-22](assets/thumbnails/tiny/left_foot_to_left_lower_leg.png)',
+    '![myImage-23](assets/thumbnails/tiny/left_foot_to_left_ankle_to_heel.png)',
+    '![myImage-24](assets/thumbnails/tiny/left_foot_to_left_toes.png)',
+    '![myImage-25](assets/thumbnails/tiny/torso_to_right_shoulder.png)',
+    '![myImage-26](assets/thumbnails/tiny/torso_to_left_shoulder.png)',
+    '![myImage-27](assets/thumbnails/tiny/torso_to_nose_to_neck.png)',
+    '![myImage-28](assets/thumbnails/tiny/torso_to_right_hip.png)',
+    '![myImage-29](assets/thumbnails/tiny/torso_to_left_hip.png)'
+]
+
 POSES_DICT = {
     'qsearch-1': {'src': 'TB_S_FB_frame43.png', 'data':'TB_S_FB_000000000043_keypoints.json'},
     'qsearch-2': {'src': 'PC_F_frame_72.png', 'data': 'PC_F_000000000072_keypoints.json'},
