@@ -5,7 +5,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
 from utils import BODYPART_THUMBS_SMALL, BODYPART_THUMBS_TINY
-from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles, Blue, Sand, Else, Green
+from heatmap_table_format import heatmap_table_format, highlight_current_frame, highlight_aligned_frame, tooltip_angles, Blue, Sand, Else, Green
 from utils import BODYPART_THUMBS_SMALL
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
@@ -13,7 +13,7 @@ from app import app
 import pandas as pd
 
 
-def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10, dif_table='false', mode='', selected_rows=[], colormap=Blue):
+def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize='false', pagesize=10, dif_table='false', mode='', selected_rows=[], colormap=Blue):
     if not selected_rows: selected_rows = []
 
     # Apply table styles
@@ -22,7 +22,10 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
     if frame_no != 'false':
         styles_header, extra_styles = highlight_current_frame(frame_no)
         styles.append(extra_styles)
-
+    if aligned_frame_no:
+        extra_styles_header, extra_styles = highlight_aligned_frame(aligned_frame_no)
+        styles_header.append(extra_styles_header)
+        styles = styles + extra_styles
     # Table Overview case
     if fullsize == 'true':
         df_angles.insert(0, 'angles_small', BODYPART_THUMBS_SMALL, True)
@@ -143,6 +146,7 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 id={'type': 'datatable', 'id': 'table-tab2-main'},
                 columns=[
                             {'name': 'angles', 'id': 'angles', 'presentation': 'markdown'}] + [
+                            {'name': 'id', 'id': 'id'}] + [
                             {
                                 'name': i,
                                 'id': i,
@@ -160,6 +164,7 @@ def render_datatable(df_angles, frame_no='false', fullsize='false', pagesize=10,
                 style_cell={},
                 row_selectable='multi',
                 selected_rows=selected_rows,
+                sort_action='custom',
                 page_size=pagesize,
                 style_data_conditional=styles,
                 style_header_conditional=styles_header,
@@ -174,3 +179,6 @@ def render_frame_header(frame_no):
     if frame_no != 'false': return html.H4('Current Frame: #{}'.format(frame_no), style={'marginTop': '1%'})
     else: return html.H4()
 
+def render_similarity_row(df_similarity):
+    layout = html.Div()
+    return layout

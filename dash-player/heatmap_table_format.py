@@ -110,6 +110,19 @@ def highlight_current_frame(frame_no):
     return header_styles, styles
 
 
+def highlight_aligned_frame(aligned_frame_no):
+    header_styles = []
+    styles = []
+    for frame in aligned_frame_no:
+        header_styles.append({
+            'if': { 'column_id': 'Frame:{}'.format(frame), 'header_index': 0 },
+            'color': 'white',
+            'backgroundColor': 'red',
+            'border': '3px red solid'
+        })
+        styles.append({'if': {'column_id': 'Frame:{}'.format(frame), }, 'border-right': '3px red solid', 'border-left': '3px red solid'})
+    return header_styles, styles
+
 def tooltip_angles(bodyparts=BODYPART_INDEX, type='angles'):
     tooltip = []
     for key, value in BODYPART_INDEX.items():

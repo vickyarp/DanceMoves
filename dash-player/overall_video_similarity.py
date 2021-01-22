@@ -319,13 +319,18 @@ def overall_similarity(X_angles, Y_angles):
     similar_num = 0
     cos_vector = np.array([])
     path = dtw_path(X_angles, Y_angles)[0]
+
+    path_dict = dict()
+    for f1, f2 in path:
+        path_dict.setdefault(f1, []).append(f2)
+
     for i, j in path:
         a = cosine_similarity(X_angles.T[i].values.reshape(1, -1), Y_angles.T[j].values.reshape(1, -1))
         # delete arrays with zeros
         if a != (np.array([0])):
             cos_vector = np.append(cos_vector, a)
     similar_num = round(np.mean(cos_vector), 3)
-    return similar_num
+    return similar_num, path_dict
 
 
 # %%
@@ -349,3 +354,6 @@ def pose_query(video='TB_F_FB', pose='TB_F_FB_000000000043_keypoints.json'):
     df.insert(0, 'Pose', pose_angles, True)
 
     return df.reset_index()
+
+if __name__ == '__main__':
+    df_angles = create_angles('UP3')

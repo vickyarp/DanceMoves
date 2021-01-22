@@ -103,6 +103,7 @@ def render_stick_figure(df, video):
 
     img_width_min = df.x[df.x != 0].min()
     img_height = round(df.y.max())
+    img_height_min = df.y[df.y != 0].min()
 
     fig.update_xaxes(
         showgrid=False,
@@ -111,7 +112,7 @@ def render_stick_figure(df, video):
     )
     fig.update_yaxes(
         showgrid=False,
-        range=(img_height + 20, 25)
+        range=(img_height + 20, img_height_min - 20)
     )
 
     for body_segment, color in zip(BODY_SEGMENTS.items(), COLORS):
@@ -126,12 +127,11 @@ def render_stick_figure(df, video):
                                  name=name,
                                  mode='lines+markers',
                                  # text=z,
-                                 opacity=0.7,
+                                 opacity=0.6,
                                  hoveron='points+fills',
                                  fill='toself',
-                                 line={'width': 4, 'color': color},
+                                 line={'width': 4, 'color': 'gray'},
                                  marker=dict(size=10, color=color),
-                                 # textposition= 'bottom center',
                                  ))
     # fig.update_layout(
     #     xaxis=dict(
@@ -165,44 +165,3 @@ def render_stick_figure(df, video):
         fig.data[i].on_click(update_trace)
 
     return fig
-
-def render_stick_figuree(df):
-    x = np.random.rand(100)
-    y = np.random.rand(100)
-
-    f = go.FigureWidget([go.Scatter(x=x, y=y, mode='markers')])
-
-    scatter = f.data[0]
-    print(scatter)
-    colors = ['#a3a7e4'] * 100
-    scatter.marker.color = colors
-    scatter.marker.size = [10] * 100
-    f.layout.hovermode = 'closest'
-    print(scatter)
-
-    # create our callback function
-    def update_point(trace, points, selector):
-        c = list(scatter.marker.color)
-        s = list(scatter.marker.size)
-        for i in points.point_inds:
-            c[i] = '#bae2be'
-            s[i] = 20
-            with f.batch_update():
-                scatter.marker.color = c
-                scatter.marker.size = s
-    print('prob?')
-
-    scatter.on_click(update_point)
-
-    return f
-
-def update_point(trace, points, selector):
-    c = list(scatter.marker.color)
-    s = list(scatter.marker.size)
-    for i in points.point_inds:
-        c[i] = '#bae2be'
-        s[i] = 20
-        with f.batch_update():
-            scatter.marker.color = c
-            scatter.marker.size = s
-

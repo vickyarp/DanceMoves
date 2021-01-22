@@ -16,19 +16,34 @@ def secondPage():
     df_angles_dif = pose_query()
     df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
     # df_angles_dif = df_angles_dif.to_json()
-    return html.Div([
+    return html.Div(
+        style={
+            'width': '80%',
+            'float': 'left',
+            'margin': '1% 0% 2% 0%'
+        },
+        children = [
         #html.H2('Variation of Poses in Video'),
-        dbc.Row(id='row', children=[
             dbc.Col(
                 id='col-queries',
+                style={
+                    'width': '15%',
+                    'float': 'left',
+                    'margin': 0,
+                },
                 children=[
                     pose_card('TB_S_FB_frame43.png', key='qsearch-1'),
                     pose_card('PC_F_frame_72.png', key='qsearch-2'),
                     pose_card('SYN_K_frame22.png', key='qsearch-3')],
             ),
-            dbc.Col(id='cl2', children=[dbc.Card(id='dif-table', children=[])]),
-
-        ]),
+            dbc.Col(
+                id='cl2',
+                style={
+                    'width': '85%',
+                    'float': 'left',
+                    'margin': 0
+                },
+                children=[dbc.Card(id='dif-table', children=[])]),
     ])
 
 
