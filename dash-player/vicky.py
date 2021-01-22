@@ -4,8 +4,8 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from visualization import similarity_layout
-from interact_with_one_video import page_1_layout
-from visualquery import page_3_layout
+# from interact_with_one_video import page_1_layout
+# from visualquery import page_3_layout
 
 from app import app
 from clustering_new import get_dendogram
@@ -134,13 +134,13 @@ def toggle_fade(n, is_in):
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    if pathname == '/page-1':
-        return page_1_layout
+    # if pathname == '/page-1':
+    #     return page_1_layout
 
-    elif pathname == '/page-2':
+    if pathname == '/page-2':
          return similarity_layout
-    elif pathname == '/page-3':
-        return page_3_layout
+    # elif pathname == '/page-3':
+    #     return page_3_layout
     else:
         return index_page
     # You could also return a 404 "URL not found" page here

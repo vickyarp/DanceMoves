@@ -28,9 +28,9 @@ page_3_layout = html.Div([
     dbc.Row([
         html.Div(
             style={
-                'width': '20%',
+                'width': '19%',
                 'float': 'left',
-                'margin': '1% 2% 2% 1%'
+                'margin': '1% 0% 2% 1%'
             },
             children=[
                 dcc.Store(id='memory-output1_b'),

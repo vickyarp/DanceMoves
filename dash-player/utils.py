@@ -232,26 +232,34 @@ def bodyparts_to_angles(bodyparts_names=[]):
                 angles.append(value)
     return angles
 
+
 def angles_to_ids(angle_names=[]):
     ids = []
     for angle_name in angle_names:
         for key, value in BODYPART_INDEX.items():
             if angle_name == value:
                 ids.append(key)
-    return ids
+    return ids.sort()
+
 
 def angle_ids_to_angles(angle_ids=[]):
     angles = []
+    angle_ids.sort()
     for id in angle_ids:
         angles.append(BODYPART_INDEX[id])
     return angles
 
+
 def bodyparts_to_ids(bodyparts_names=[]):
     ids = []
-    for bodypart in bodypart_names:
+    for bodypart in bodyparts_names:
         ids.append(BODY_SEGMENTS[bodypart][0])
         ids.append(BODY_SEGMENTS[bodypart][1])
-    return list(set(ids))
+    ids = list(set(ids))
+    ids.sort()
+    return ids
+
+
 def update_selected_state(state={'angles': [], 'bodyparts': []}, angle_names=[], bodypart_names=[]):
     new_bodyparts = angle_to_bodyparts(angle_names)
     new_angles = bodyparts_to_angles(bodypart_names)
