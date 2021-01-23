@@ -139,31 +139,30 @@ similarity_layout = html.Div([
                     ),
                 ]),
             ], className="mb-3",),
-
-            dbc.Card([
-                dbc.CardHeader(["Choose Second Video:", dcc.Dropdown(
+            dbc.Card(
+                dbc.CardBody([
+                    html.P("Choose Second Video:"),
+                    dcc.Dropdown(
                         id='memory-video2',
                         options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
                         value='BA_R_NA'
-                    ),]),
-                dbc.CardBody([
+                    ),
 
                     dash_player.DashPlayer(
                         id='video-player2',
                         currentTime= 0,
-                        intervalCurrentTime = 100,
-                        loop=True,
                         controls=True,
+                        intervalCurrentTime=40,
+                        loop=True,
                         width='100%',
                         height='min-content'
                     ),
                     html.Div(
                         id='div-current-time2',
-                        # style={'margin': '10px 0px'}
-                    ),
-                ])
-            ], className="mb-3",
-            )
+                    )
+                ]),
+                className="mb-3",
+            ),
         ]
     ),
 
@@ -177,7 +176,7 @@ similarity_layout = html.Div([
             html.Div(style={'min-height': '70vh'}, children=[
                 dcc.Tabs(id='table-tabs', value='tab-2', children=[
                     dcc.Tab(label='Frame Level', value='tab-1'),
-                    dcc.Tab(label='Video Level', value='tab-2'),
+                    dcc.Tab(label='Video Level', value='tab-2')
                 ]),
                 html.Div(id='tabs-content'),
             ]),
@@ -215,6 +214,7 @@ similarity_layout = html.Div([
             ),
             dcc.Graph(
                 id = 'graph-im2',
+                figure=go.Figure(),
                 style={'height': '50vh'},
             ),
         ]
@@ -394,7 +394,6 @@ def render_content(tab, dft, df_angles, df2_angles, playing, frame_no, selected_
                    modal(df_angles, frame_no),\
                    render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
                    modal(df2_angles, frame_no+2)
-
     except:
         return dash.no_update
 
@@ -473,54 +472,18 @@ def update_figure(playing, frame_no, restyleData, n_clicks, selected_points, vid
         return dash.no_update
 
 @app.callback(Output('graph-im2', 'figure'),
-              [Input('video-player2', 'playing')],
+              [Input('video-player2', 'playing'),
+               Input('memory-frame', 'data')],
               [State('video-player2', 'currentTime'),
+               State('memory-video2', 'value'),
                State('memory-output2', 'data')])
-def update_figure(playing, currentTime, video_frames):
+def update_figure(playing, frame_no, currentTime, video2, video_frames):
     try:
-        if not playing:
-            # points = get_coordinates(keypoints[int(np.round(1/.04))])
-            df = pd.read_json(video_frames[int(np.round(currentTime / .04))])
-            fig = go.Figure()
-            img_width = 400
-            img_height = 400
-            scale_factor = 0.5
-            fig.add_layout_image(
-                x=100,
-                sizex=img_width,
-                y=100,
-                sizey=img_height + 200,
-                xref="x",
-                yref="y",
-                opacity=1.0,
-                layer="below"
-            )
-            fig.update_xaxes(showgrid=False, scaleanchor='y', range=(0, img_width))
-            fig.update_yaxes(showgrid=False, range=(img_height, 0))
-            for pair, color in zip(PAIRS_RENDER, COLORS):
-                x1 = int(df.x[pair[0]])
-                y1 = int(df.y[pair[0]])
-                x2 = int(df.x[pair[1]])
-                y2 = int(df.y[pair[1]])
-                if (x1 != 0 and x2 != 0 and y1 != 0 and y2 != 0):
-                    fig.add_shape(
-                        type='line', xref='x', yref='y',
-                        x0=x1, x1=x2, y0=y1, y1=y2, line_color=color, line_width=4
-                    )
-                    fig.add_shape(
-                        type='line', xref='x', yref='y',
-                        x0=x1, x1=x2, y0=y1, y1=y2,
-                        line=dict(color='rgba(231,107,243,0.2)', width=15)
-                    )
-                fig.add_shape(
-                    type='circle', xref='x', yref='y',
-                    x0=x1 - 3, y0=y1 - 3, x1=x1 + 3, y1=y1 + 3, line_color=color, fillcolor=color
-                )
-                fig.add_shape(
-                    type='circle', xref='x', yref='y',
-                    x0=x2 - 3, y0=y2 - 3, x1=x2 + 3, y1=y2 + 3, line_color=color, fillcolor=color
-                )
-            return fig
+        if not playing and frame_no:
+            df = pd.read_json(video_frames[frame_no])
+            return render_stick_figure(df, video2)
+        else:
+            return dash.no_update
     except:
         return dash.no_update
     return dash.no_update
@@ -598,10 +561,6 @@ def toggle_modal(n1, n2, is_open):
 
 
 
-
-#COMMENTS BECAUSE OF DUBLE INITIALIZATION
-#CALLBACKS FOR FIGURE
-
 @app.callback(Output('selected-points-state', 'data'),
               [Input({'type': 'datatable',  'id': ALL}, 'derived_virtual_selected_row_ids'),
                Input('graph-im1', 'selectedData'),
@@ -637,50 +596,50 @@ def update_selected_rows(selected_rows, selectedData, n_clicks, selected_points,
         return dash.no_update
 
 
-@app.callback([Output({"id":"table-tab2-main","type":"datatable"}, 'selected_rows'),
-               Output({"id":"table-tab2-main","type":"datatable"}, 'data')],
-              [Input('selected-points-state', 'data'),
-               Input({'id': 'table-tab2-main', 'type': 'datatable'}, 'sort_by'),
-               Input({'id': 'table-tab2-main', 'type': 'datatable'}, 'selected_row_ids')],
-              [State('selected-points-state', 'data'),
-              State({"id":"table-tab2-main","type":"datatable"}, 'derived_virtual_selected_row_ids'),
-               State({'id':'table-tab2-main','type':'datatable'}, 'derived_virtual_selected_rows'),
-               State({'id': 'table-tab2-main', 'type': 'datatable'}, 'data')])
-def update_selected_row_state(_, sort_by, selected_row_ids, selected_points_state, derived_virtual_selected_row_ids, derived_virtual_selected_rows, data):
-    try:
-        default_state = {'angles': [], 'bodyparts': []}
-        ctx = dash.callback_context
-        sort_by_trigger = '{"id":"table-tab2-main","type":"datatable"}.sort_by'
-        selected_id_trigger = '{"id":"table-tab2-main","type":"datatable"}.selected_row_ids'
-
-        if ctx.triggered[0]['prop_id'] == 'selected-points-state.data':
-            if selected_points_state is None:
-                return dash.no_update, dash.no_update
-            elif selected_points_state == default_state:
-                return [], dash.no_update
-            else:
-                print('606: {}'.format(selected_points_state['angles']))
-                selected = angles_to_ids(selected_points_state['angles'])
-                print('-> {}'.format(selected))
-                for i in range(len(selected)):
-                    row = selected[i]
-                    index = next((j for j, item in enumerate(data) if item['id'] == row), -1)
-                    data.insert(i, data.pop(index))
-                return [i for i in range(len(selected))], data
-
-        elif ctx.triggered[0]['prop_id'] == sort_by_trigger or ctx.triggered[0]['prop_id'] == selected_id_trigger:
-                print('(665) selected_row_ids: {}'.format(selected_row_ids))
-                selected_row_ids.sort()
-                for i in range(len(selected_row_ids)):
-                    row = selected_row_ids[i]
-                    index = next((j for j, item in enumerate(data) if item['id'] == row), -1)
-                    data.insert(i, data.pop(index))
-                derived_virtual_selected_rows = [i for i in range(len(selected_row_ids))]
-                return derived_virtual_selected_rows, data
-    except Exception as e:
-        print(e)
-        return dash.no_update, dash.no_update
-    return dash.no_update, dash.no_update
+# @app.callback([Output({"id":"table-tab2-main","type":"datatable"}, 'selected_rows'),
+#                Output({"id":"table-tab2-main","type":"datatable"}, 'data')],
+#               [Input('selected-points-state', 'data'),
+#                Input({'id': 'table-tab2-main', 'type': 'datatable'}, 'sort_by'),
+#                Input({'id': 'table-tab2-main', 'type': 'datatable'}, 'selected_row_ids')],
+#               [State('selected-points-state', 'data'),
+#               State({"id":"table-tab2-main","type":"datatable"}, 'derived_virtual_selected_row_ids'),
+#                State({'id':'table-tab2-main','type':'datatable'}, 'derived_virtual_selected_rows'),
+#                State({'id': 'table-tab2-main', 'type': 'datatable'}, 'data')])
+# def update_selected_row_state(_, sort_by, selected_row_ids, selected_points_state, derived_virtual_selected_row_ids, derived_virtual_selected_rows, data):
+#     try:
+#         default_state = {'angles': [], 'bodyparts': []}
+#         ctx = dash.callback_context
+#         sort_by_trigger = '{"id":"table-tab2-main","type":"datatable"}.sort_by'
+#         selected_id_trigger = '{"id":"table-tab2-main","type":"datatable"}.selected_row_ids'
+#
+#         if ctx.triggered[0]['prop_id'] == 'selected-points-state.data':
+#             if selected_points_state is None:
+#                 return dash.no_update, dash.no_update
+#             elif selected_points_state == default_state:
+#                 return [], dash.no_update
+#             else:
+#                 print('606: {}'.format(selected_points_state['angles']))
+#                 selected = angles_to_ids(selected_points_state['angles'])
+#                 print('-> {}'.format(selected))
+#                 for i in range(len(selected)):
+#                     row = selected[i]
+#                     index = next((j for j, item in enumerate(data) if item['id'] == row), -1)
+#                     data.insert(i, data.pop(index))
+#                 return [i for i in range(len(selected))], data
+#
+#         elif ctx.triggered[0]['prop_id'] == sort_by_trigger or ctx.triggered[0]['prop_id'] == selected_id_trigger:
+#                 print('(665) selected_row_ids: {}'.format(selected_row_ids))
+#                 selected_row_ids.sort()
+#                 for i in range(len(selected_row_ids)):
+#                     row = selected_row_ids[i]
+#                     index = next((j for j, item in enumerate(data) if item['id'] == row), -1)
+#                     data.insert(i, data.pop(index))
+#                 derived_virtual_selected_rows = [i for i in range(len(selected_row_ids))]
+#                 return derived_virtual_selected_rows, data
+#     except Exception as e:
+#         print(e)
+#         return dash.no_update, dash.no_update
+#     return dash.no_update, dash.no_update
 
 # @app.callback(Output({"id":"table-tab2-main","type":"datatable"}, 'data'),
 #               [Input({'id': 'table-tab2-main', 'type': 'datatable'}, 'sort_by'),

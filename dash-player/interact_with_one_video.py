@@ -46,14 +46,16 @@ def create_coordinate_df(points_with_confidence):
 
 
 page_1_layout = html.Div([
-    dcc.Location(id='url',refresh=False,pathname='/page-1'),
+    dcc.Location(id='url', refresh=False, pathname='/page-1'),
     html.H1('Interact with one video', style={'text-align': 'center'}),
     html.Br(),
-    html.Div([
-        dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
-        dcc.Link(dbc.Button('Interact with two videos and find similarity', size="lg"), href="/page-2"),
-        dcc.Link(dbc.Button('Interact with visual query', size="lg"), href="/page-3"),
-        ], style={ 'display': 'flex', 'justify-content': 'center'}),
+    html.Div(
+        [
+            dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
+            dcc.Link(dbc.Button('Interact with two videos and find similarity', size="lg"), href="/page-2"),
+            dcc.Link(dbc.Button('Interact with visual query', size="lg"), href="/page-3"),
+        ],
+        style={ 'display': 'flex', 'justify-content': 'center'}),
 
     dbc.Row([
         html.Div(
@@ -68,8 +70,7 @@ page_1_layout = html.Div([
                 dcc.Store(id='current-time1_b'),
                 dcc.Store(id='memory-frame_b'),
                 dcc.Store(id='selected-row-state'),
-                dcc.Store(id='selected-points-state'),
-                dcc.Store(id='temp-state_b'),
+                dcc.Store(id='selected-points-state_b'),
 
                 # dcc.Input(
                 #     id='input-url',
@@ -192,10 +193,14 @@ page_1_layout = html.Div([
 
                 dcc.Graph(
                     id='graph-im1_b',
+                    figure=go.Figure(),
                     style={'height': '50vh'}
                 ),
-                html.Div([dbc.Button("Reset", id="reset-selection_b")],
-                         style={'display': 'flex', 'justify-content': 'center'}),
+                html.Div(
+                    children=[dbc.Button("Update", id="update-selection_b", style={'margin': '5px'}),
+                              dbc.Button("Reset", id="reset-selection_b", style={'margin': '5px'})],
+                    style={'display': 'flex', 'justify-content': 'center'}
+                ),
             ]
         ),
 ]),
@@ -218,16 +223,12 @@ def get_dataframes(video_selected1):
     duration = 5 ##################################################### TODO
     df_angles = create_df(video_selected1)
     df_angles.insert(0, 'angles', BODYPART_THUMBS, True)
-    # df_angles = df_angles.loc[BODYPART_INDEX_CANONICAL, :]
+    df_angles.insert(1, 'id', [i for i in range(29)], True)
     keypoints1 = get_keypoints(video_selected1)
     data = []
     for frame in keypoints1:
         df = create_coordinate_df(frame)
         data.append(df.to_json())
-
-
-    angles1 = create_angles(video_selected1).T.fillna(0)
-    #return df_angles.to_json(), data, url1, data2, url2, duration, similarity
     return df_angles.to_json(), data, url1, duration
 
 
@@ -266,20 +267,36 @@ def update_current_frame(currentTime):
 
 
 @app.callback(Output('video-player_b', 'seekTo'),
-              Input('video-player_b', 'currentTime'),
-             [State('range-slider_b', 'value'),
-              State('video-player_b', 'duration')])
-def update_position(currentTime, value, duration):
+              [Input('video-player_b', 'currentTime'),
+               Input('range-slider_b', 'value')],
+              [State('video-player_b', 'duration'),
+               State('video-player_b', 'playing')])
+def update_position(currentTime, value, duration, playing):
     start = list(value)[0]
     end = list(value)[1]
-    if currentTime and currentTime >= end:
-        if currentTime > 1:
-            return start
+    try:
+        ctx = dash.callback_context
+        if ctx.triggered[0]['prop_id'] == 'range-slider_b.value':
+            if not playing and currentTime > 1:
+                return start
+            elif not playing:
+                percentage = (start / duration)
+                return percentage
+            else:
+                dash.no_update
+        elif ctx.triggered[0]['prop_id'] == 'video-player_b.currentTime':
+            if currentTime and currentTime >= end:
+                if currentTime > 1:
+                    return start
+                else:
+                    percentage = (start / duration)
+                    return percentage
+            else:
+                return dash.no_update
         else:
-            percentage = (start / duration)
-            return percentage
-            # return 0, 0
-    else:
+            return dash.no_update
+    except Exception as e:
+        print(e)
         return dash.no_update
 
 
@@ -289,14 +306,13 @@ def update_position(currentTime, value, duration):
                Input('memory-table_b', 'data'),
                Input('video-player_b', 'playing'),
                Input('selected-row-state', 'data'),
-               Input('gradient-scheme', 'value')],
+               Input('gradient-scheme', 'value'),
+               Input('memory-frame_b', 'data')],
                [State('video-player_b', 'currentTime')])
-def render_content(tab, dft, df_angles, selected_rows, playing, value, currentTime):
+def render_content(tab, dft, df_angles, playing, selected_rows, gradient_scheme, frame_no, currentTime):
     try:
-        frame_no = int(np.round(currentTime / .04))
-
         if tab == 'tab-1':
-            df = dft[int(np.round(currentTime / .04))]
+            df = dft[frame_no]
             df = pd.read_json(df)
             return [html.Div([
                 html.H4('Frame #{}'.format(frame_no)),
@@ -310,7 +326,7 @@ def render_content(tab, dft, df_angles, selected_rows, playing, value, currentTi
                     },
                     style_table={'overflowX': 'scroll'},
                     style_cell={
-                        'backgroundColor': colormaps[value][2],
+                        'backgroundColor': colormaps[gradient_scheme][2],
                         'color': 'black',
                         'fontWeight': 'bold'
                     }
@@ -324,157 +340,56 @@ def render_content(tab, dft, df_angles, selected_rows, playing, value, currentTi
             #     colormap = Plasma
             # elif value == 'Else':
             #     colormap = Else
-            return render_datatable(df_angles, frame_no, selected_rows=selected_rows,colormap=colormaps[value]), modal(df_angles, frame_no)
+            return render_datatable(df_angles, frame_no, selected_rows=selected_rows, colormap=colormaps[gradient_scheme]), modal(df_angles, frame_no)
     except:
         return dash.no_update
 
 
-#VICKYYYYYYYYYYYYYYYYYYYY
-
-# @app.callback(Output('graph-im1_b', 'figure'),
-#               Input('video-player_b', 'playing'),
-#               [State('video-player_b', 'currentTime'),
-#                State('memory-output1_b', 'data')])
-# def update_figure(playing, currentTime, video_frames):
-#     if not playing and currentTime and currentTime > 0:
-#
-#         # points = get_coordinates(keypoints[int(np.round(1/.04))])
-#         df = pd.read_json(video_frames[int(np.round(currentTime/.04))])
-#         fig = go.Figure()
-#         img_width = 400
-#         img_height = 400
-#         scale_factor = 0.5
-#         fig.add_layout_image(
-#             x=100,
-#             sizex=img_width,
-#             y=100,
-#             sizey=img_height + 200,
-#             xref="x",
-#             yref="y",
-#             opacity=1.0,
-#             layer="below"
-#         )
-#         fig.update_xaxes(showgrid=False, scaleanchor='y', range=(0, img_width))
-#         fig.update_yaxes(showgrid=False, range=(img_height, 0))
-#         for pair, color in zip(PAIRS_RENDER, COLORS):
-#             x1 = int(df.x[pair[0]])
-#             y1 = int(df.y[pair[0]])
-#             x2 = int(df.x[pair[1]])
-#             y2 = int(df.y[pair[1]])
-#             z1 = df.confidence[pair[0]]
-#             z2 = df.confidence[pair[1]]
-#
-#             if x1 != 0 and x2 != 0 and y1 != 0 and y2 != 0:
-#                 fig.add_shape(
-#                     type='line', xref='x', yref='y',
-#                     x0=x1, x1=x2, y0=y1, y1=y2, line_color=color, line_width=4
-#                 )
-#             fig.add_shape(
-#                 type='circle', xref='x', yref='y',
-#                 x0=x1 - 3, y0=y1 - 3, x1=x1 + 3, y1=y1 + 3, line_color=color, fillcolor=color
-#             )
-#             fig.add_shape(
-#                 type='circle', xref='x', yref='y',
-#                 x0=x2 - 3, y0=y2 - 3, x1=x2 + 3, y1=y2 + 3, line_color=color, fillcolor=color
-#             )
-#             fig.add_trace(
-#                 go.Scatter(
-#                     x=[x2],
-#                     y=[y2],
-#                     # mode='markers',
-#                     # marker_size=8,
-#                     showlegend=False,
-#                     marker_color=color,
-#                     name='',
-#                     text='Confidence:{:.2f}'.format(z1),
-#                     opacity=0
-#                 )
-#             )
-#             fig.add_trace(
-#                 go.Scatter(
-#                     x=[x2],
-#                     y=[y2],
-#                     showlegend=False,
-#                     marker_color=color,
-#                     name='',
-#                     text='Confidence:{:.2f}'.format(z2),
-#                     opacity=0
-#                 )
-#             )
-#
-#         return fig
-#     else:
-#         return dash.no_update
-
 @app.callback(Output('graph-im1_b', 'figure'),
               [Input('video-player_b', 'playing'),
-               # Input('graph-im1', 'selectedData'),
-               # Input('graph-im1', 'clickData'),
-               Input('graph-im1_b', 'restyleData'),
+               Input('memory-frame_b', 'data'),
                Input('reset-selection_b', 'n_clicks'),
-               Input('selected-points-state', 'data')],
-              [State('video-player_b', 'currentTime'),
-               State('memory-output1_b', 'data'),
+               Input('selected-points-state_b', 'data')],
+              [State('memory-output1_b', 'data'),
                State('memory-video1_b', 'value'),
                State('graph-im1_b', 'figure')])
+def update_figure(playing, frame_no, n_clicks, selected_points, video_frames, video1, fig):
+    try:
+        ctx = dash.callback_context
+        if ctx.triggered[0]['prop_id'] in ['video-player_b.playing', 'memory-frame_b.data']:
+            try:
+                if not playing and frame_no:
+                    df = pd.read_json(video_frames[frame_no])
+                    return render_stick_figure(df, video1)
+                else: return dash.no_update
+            except:
+                return dash.no_update
+        # elif ctx.triggered[0]['prop_id'] == 'reset-selection_b.n_clicks':
+        #     if n_clicks is None:
+        #         raise dash.PreventUpdate
+        #     else:
+        #         default_state = {'angles': [], 'bodyparts': []}
+        #         df = pd.read_json(video_frames[int(np.round(currentTime / .04))])
+        #         return render_stick_figure(df, video1), default_state
+        else:
+            try:
+                # initialize state
+                if selected_points == None : selected_points = {'angles': [], 'bodyparts': []}
+                selection = None
 
-# def update_figure(playing, selectedData, clickData, restyleData, n_clicks, selected_points, currentTime, video_frames, video1, fig):
-def update_figure(playing, restyleData, n_clicks, selected_points, currentTime, video_frames, video1, fig):
-
-    ctx = dash.callback_context
-    if ctx.triggered[0]['prop_id'] == 'video-player_b.playing':
-        if not playing and currentTime and currentTime > 0:
-            # points = get_coordinates(keypoints[int(np.round(1/.04))])
-            df = pd.read_json(video_frames[int(np.round(currentTime/.04))])
-            return render_stick_figure(df, video1)
-
-        else: return dash.no_update
-    # elif ctx.triggered[0]['prop_id'] == 'reset-selection.n_clicks':
-    #     if n_clicks is None:
-    #         raise dash.PreventUpdate
-    #     else:
-    #         default_state = {'angles': [], 'bodyparts': []}
-    #         df = pd.read_json(video_frames[int(np.round(currentTime / .04))])
-    #         return render_stick_figure(df, video1), default_state
-    else:
-        try:
-            # initialize state
-            if selected_points == None : selected_points = {'angles': [], 'bodyparts': []}
-            selection = None
-
-            # Update selection based on which event triggered the update.
-            trigger = dash.callback_context.triggered[0]['prop_id']
-            # print(trigger)
-            # if trigger == 'graph-im1.clickData':
-            #     selection = [point["curveNumber"] for point in clickData["points"]]
-            #     print(selection)
-            #     for curve_number in selection:
-            #         # fig["data"][curve_number]["selectedpoints"] = selection
-            #         fig["data"][curve_number]["line"]["color"] = 'black'
-            # if trigger == 'graph-im1.selectedData':
-            #     selection = [point["curveNumber"] for point in selectedData["points"]]
-            #     selection_names = [fig["data"][curve_number]['name'] for curve_number in selection]
-            #
-            #     for curve_number in selection:
-            #         # fig["data"][curve_number]["selectedpoints"] = selection
-            #         fig["data"][curve_number]["line"]["color"] = 'black'
-            #     selected_points = update_selected_state(state=selected_points, bodypart_names=selection_names)
-            #     return fig
-
-            if trigger == 'graph-im1_b.restyleData':
-                print(restyleData)
-                # print(selectedData)
-
-            if trigger == 'selected-points-state.data':
-                for bodypart in selected_points['bodyparts']:
-                    curve = next(filter(lambda x: x['name'] == bodypart,  fig["data"]))
-                    curve_number = fig["data"].index(curve)
-                    fig["data"][curve_number]["line"]["color"] = 'black'
-            # fig["data"][0]["selectedpoints"] = selection
-            return fig
-        except TypeError as e:
-            print(e)
-            return dash.no_update
+                if ctx.triggered[0]['prop_id'] == 'selected-points-state_b.data':
+                    for bodypart in selected_points['bodyparts']:
+                        curve = next(filter(lambda x: x['name'] == bodypart,  fig["data"]))
+                        curve_number = fig["data"].index(curve)
+                        fig["data"][curve_number]["line"]["color"] = COLORS[curve_number]
+                        fig["data"][curve_number]["line"]["width"] = 5
+                        fig["data"][curve_number]["opacity"] = 1
+                return fig
+            except TypeError as e:
+                print(e)
+                return dash.no_update
+    except:
+        return dash.no_update
 
 
 @app.callback(Output('video-player_b', 'controls'),
@@ -503,71 +418,95 @@ def update_methods(secondsLoaded, duration):
     return 'Second Loaded: {}, Duration: {}'.format(secondsLoaded, duration)
 
 
-@app.callback(
-    Output("modal-centered", "is_open"),
-    [Input("open-centered", "n_clicks"), Input("close-centered", "n_clicks")],
-    [State("modal-centered", "is_open")],
-)
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
+# @app.callback(
+#     Output("modal-centered", "is_open"),
+#     [Input("open-centered", "n_clicks"), Input("close-centered", "n_clicks")],
+#     [State("modal-centered", "is_open")])
+# def toggle_modal(n1, n2, is_open):
+#     if n1 or n2:
+#         return not is_open
+#     return is_open
 
 
-@app.callback(Output('selected-points-state', 'data'),
-              [Input({'type': 'datatable',  'id': ALL}, 'selected_rows'),
+@app.callback(Output('selected-points-state_b', 'data'),
+              [Input({'type': 'datatable',  'id': ALL}, 'derived_virtual_selected_row_ids'),
                Input('graph-im1_b', 'selectedData'),
                Input('reset-selection_b', 'n_clicks')],
-              [State('selected-points-state', 'data'),
+              [State('selected-points-state_b', 'data'),
                State('graph-im1_b', 'figure')])
 def update_selected_rows(selected_rows, selectedData, n_clicks, selected_points, fig):
-    default_state = {'angles': [], 'bodyparts': []}
-    if selected_points == None: selected_points = default_state
-    ctx = dash.callback_context
-    # print('616: {}'.format( ctx.triggered[0]['prop_id']))
-    if ctx.triggered[0]['prop_id'] == 'reset-selection_b.n_clicks':
-        if n_clicks is None:
-            return dash.no_update
+    try:
+        default_state = {'angles': [], 'bodyparts': []}
+        if selected_points == None: selected_points = default_state
+        ctx = dash.callback_context
+        # print('616: {}'.format( ctx.triggered[0]['prop_id']))
+        if ctx.triggered[0]['prop_id'] == 'reset-selection_b.n_clicks':
+            if n_clicks is None:
+                return dash.no_update
+            else:
+                return default_state
+        elif ctx.triggered[0]['prop_id'] == 'graph-im1_b.selectedData':
+            selection = [point["curveNumber"] for point in selectedData["points"]]
+            selection_names = [fig["data"][curve_number]['name'] for curve_number in selection]
+            selected_points = update_selected_state(state=selected_points, bodypart_names=selection_names)
+            print('selected data to state: {}'.format(selected_points))
+            return selected_points
+        elif ctx.triggered[0]['prop_id'] == '{"id":"table-tab2-main","type":"datatable"}.derived_virtual_selected_row_ids':
+            angles = angle_ids_to_angles(selected_rows[0])
+            print(angles)
+            selected_points = update_selected_state(state=selected_points, angle_names=angles)
+            print('derived_virtual_selected_row_ids: {} -> selected_points: {}'.format(selected_rows, selected_points))
+            return selected_points
         else:
             return default_state
-    elif ctx.triggered[0]['prop_id'] == 'graph-im1_b.selectedData':
-        selection = [point["curveNumber"] for point in selectedData["points"]]
-        selection_names = [fig["data"][curve_number]['name'] for curve_number in selection]
-        selected_points = update_selected_state(state=selected_points, bodypart_names=selection_names)
-        print('state: {}'. format(selected_points))
-        return selected_points
-    elif ctx.triggered[0]['prop_id'] == '{"id":"table-tab2-main","type":"datatable"}.selected_rows':
-        print(selected_rows[0])
-        angles = angle_ids_to_angles(selected_rows[0])
-        print(angles)
-        selected_points = update_selected_state(state=selected_points, angle_names=angles)
-        print('state: {}'.format(selected_points))
-        return selected_points
-    else:
-        return default_state
-
-
-#edw mallon exei provlima
-
-@app.callback(Output({"id":"table-tab2-main","type":"datatable"}, 'selected_rows'),
-              Input('graph-im1_b', 'figure.data'),
-              State('selected-points-state', 'data'))
-def update_selected_row_state(_, selected_points):
-    print('here')
-    print(selected_points)
-    default_state = {'angles': [], 'bodyparts': []}
-
-    if selected_points is None:
+    except:
         return dash.no_update
-    elif selected_points == default_state:
-        return []
-    else:
-        try:
-            print('606: '.format(selected_points['angles']))
-            return angles_to_ids(selected_points['angles'])
-        except Exception as e:
-            print(e)
-            return dash.no_update
+
+
+@app.callback([Output({"id":"table-tab2-main","type":"datatable"}, 'selected_rows'),
+               Output({"id":"table-tab2-main","type":"datatable"}, 'data')],
+              [Input('selected-points-state_b', 'data'),
+               Input({'id': 'table-tab2-main', 'type': 'datatable'}, 'sort_by'),
+               Input({'id': 'table-tab2-main', 'type': 'datatable'}, 'selected_row_ids')],
+              [State('selected-points-state_b', 'data'),
+              State({"id":"table-tab2-main","type":"datatable"}, 'derived_virtual_selected_row_ids'),
+               State({'id':'table-tab2-main','type':'datatable'}, 'derived_virtual_selected_rows'),
+               State({'id': 'table-tab2-main', 'type': 'datatable'}, 'data')])
+def update_selected_row_state(_, sort_by, selected_row_ids, selected_points_state, derived_virtual_selected_row_ids, derived_virtual_selected_rows, data):
+    try:
+        default_state = {'angles': [], 'bodyparts': []}
+        ctx = dash.callback_context
+        sort_by_trigger = '{"id":"table-tab2-main","type":"datatable"}.sort_by'
+        selected_id_trigger = '{"id":"table-tab2-main","type":"datatable"}.selected_row_ids'
+
+        if ctx.triggered[0]['prop_id'] == 'selected-points-state_b.data':
+            if selected_points_state is None:
+                return dash.no_update, dash.no_update
+            elif selected_points_state == default_state:
+                return [], dash.no_update
+            else:
+                print('490: {}'.format(selected_points_state['angles']))
+                selected = angles_to_ids(selected_points_state['angles'])
+                print('-> {}'.format(selected))
+                for i in range(len(selected)):
+                    row = selected[i]
+                    index = next((j for j, item in enumerate(data) if item['id'] == row), -1)
+                    data.insert(i, data.pop(index))
+                return [i for i in range(len(selected))], data
+
+        elif ctx.triggered[0]['prop_id'] == sort_by_trigger or ctx.triggered[0]['prop_id'] == selected_id_trigger:
+                print('(665) selected_row_ids: {}'.format(selected_row_ids))
+                selected_row_ids.sort()
+                for i in range(len(selected_row_ids)):
+                    row = selected_row_ids[i]
+                    index = next((j for j, item in enumerate(data) if item['id'] == row), -1)
+                    data.insert(i, data.pop(index))
+                derived_virtual_selected_rows = [i for i in range(len(selected_row_ids))]
+                return derived_virtual_selected_rows, data
+    except Exception as e:
+        print(e)
+        return dash.no_update, dash.no_update
+    return dash.no_update, dash.no_update
 
 
 # @app.callback(Output({"id":"table-tab2-main","type":"datatable"}, 'children'),

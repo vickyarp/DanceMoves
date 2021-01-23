@@ -2,6 +2,7 @@ import dash
 import dash_player
 import dash_core_components as dcc
 import dash_html_components as html
+import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 import dash_reusable_components as drc
 from dash.dependencies import Input, Output, State
@@ -37,14 +38,9 @@ page_3_layout = html.Div([
                 dcc.Store(id='memory-table_b'),
                 dcc.Store(id='current-time1_b'),
                 dcc.Store(id='memory-frame_b'),
-                dcc.Store(id='selected-row-state_b'),
+                dcc.Store(id='selected-row-state'),
                 dcc.Store(id='selected-points-state_b'),
 
-                # dcc.Input(
-                #     id='input-url',
-                #     value='/assets/TB_F_FB.mp4'
-                # ),
-                # html.Button('Change video', id='button-update-url'),
                 dbc.Card(
                     dbc.CardBody([
                         html.P("Choose Main Video:"),
@@ -56,7 +52,6 @@ page_3_layout = html.Div([
 
                         dash_player.DashPlayer(
                             id='video-player_b',
-                            #url='/assets/TB_F_FB.mp4',#t=npt:2.3,2.9',
                             currentTime= 0,
                             controls=True,
                             intervalCurrentTime=40,
@@ -97,7 +92,6 @@ page_3_layout = html.Div([
                             step=0.001,
                             value=[0, 3],
                             updatemode='drag',
-                            # marks={i: "%g" %i for i in np.arange(0, 10, 0.1)},
                         ),
 
                         html.P("Playback Rate:",),
@@ -116,11 +110,18 @@ page_3_layout = html.Div([
                 className="mb-3",),
                 dbc.Card([
                     dcc.Graph(
-                        id= 'graph-im1_b',
+                        id='graph-im1_b',
+                        figure=go.Figure(),
                         style={'height': '50vh'}
                     ),
                 ],
-                className="mb-3",)
+                className="mb-3",),
+
+                html.Div(
+                    children=[dbc.Button("Update", id="update-selection_b", style={'margin': '5px'}),
+                              dbc.Button("Reset", id="reset-selection_b", style={'margin': '5px'})],
+                    style={'display': 'none'}
+                ),
             ]
         ),
         secondPage()

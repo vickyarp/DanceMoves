@@ -239,7 +239,8 @@ def angles_to_ids(angle_names=[]):
         for key, value in BODYPART_INDEX.items():
             if angle_name == value:
                 ids.append(key)
-    return ids.sort()
+    ids.sort()
+    return ids
 
 
 def angle_ids_to_angles(angle_ids=[]):
