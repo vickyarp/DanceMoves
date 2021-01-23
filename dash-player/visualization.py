@@ -49,7 +49,7 @@ similarity_layout = html.Div([
     html.Div([
         dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
         dcc.Link(dbc.Button('Interact with one video', size="lg"), href="/page-1"),
-        dcc.Link(dbc.Button('Interact with two videos and find similarity', size="lg"), href="/page-2"),
+        dcc.Link(dbc.Button('Interact with visual query', size="lg"), href="/page-3"),
 
     ], style={'display': 'flex', 'justify-content': 'center'}),
     dbc.Row([
@@ -175,8 +175,8 @@ similarity_layout = html.Div([
         children=[
             html.Div(style={'min-height': '70vh'}, children=[
                 dcc.Tabs(id='table-tabs', value='tab-2', children=[
-                    dcc.Tab(label='Frame Level', value='tab-1'),
-                    dcc.Tab(label='Video Level', value='tab-2')
+                    dcc.Tab(label='Angle Similarity', value='tab-2'),
+                    dcc.Tab(label='Velocity Similarity', value='tab-1')
                 ]),
                 html.Div(id='tabs-content'),
             ]),
@@ -275,6 +275,9 @@ def get_dataframes(video_selected1, video_selected2):
     angles2 = create_angles(video_selected2).T.fillna(0)
     similarity, dtw_alignment = overall_similarity(angles1, angles2)
     return similarity, dtw_alignment
+
+
+
 
 
 @app.callback([Output('video-player', 'playing'),

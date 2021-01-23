@@ -301,17 +301,33 @@ def create_angles(video, type='cosine'):
 
     return newDF
 
-
 # %%
 
-X_angles = create_angles('AS_L_NA').T
-Y_angles = create_angles('SYN_B').T
+# X_angles = create_angles('AS_L_NA')
+# # Y_angles = create_angles('SYN_B')
+# #
+# # # %%
+# #
+# # X_angles = X_angles.fillna(0)
+# # Y_angles = Y_angles.fillna(0)
 
-# %%
 
-X_angles = X_angles.fillna(0)
-Y_angles = Y_angles.fillna(0)
+#%%vicky
+def create_velocity_df(Z_angles):
+    newDF = pd.DataFrame(index=range(29),columns=range(Z_angles.shape[1]-1))
+    i=0
+    for j in range(Z_angles.shape[1]):
+        bodyvector = Z_angles[j]-Z_angles[j+1]
+        new_bodyvector=pd.DataFrame(bodyvector)
+        newDF[i]=new_bodyvector
+        i+=1
+        if j == (Z_angles.shape[1] - 2) :
+            break
+    return newDF
 
+
+#X = create_velocity_df(X_angles)
+#Y = create_velocity_df(Y_angles)
 
 # %%
 
@@ -335,7 +351,24 @@ def overall_similarity(X_angles, Y_angles):
 
 # %%
 
-overall_similarity(X_angles, Y_angles)
+
+def velocity_similarity(X ,Y ):
+    similar_num=0
+    cos_vector=np.array([])
+
+    path=dtw_path(X.T , Y.T)[0]
+    for i,j in path:
+        a=cosine_similarity(X[i].values.reshape(1,-1),Y[j].values.reshape(1,-1))
+
+    #delete arrays with zeros
+        if a != (np.array([0])):
+            cos_vector=np.append(cos_vector,a )
+    #print(cos_vector)
+    similar_num=round(np.mean(cos_vector),3)
+    return similar_num
+
+#x = velocity_similarity(X , Y)
+
 
 
 def pose_query(video='TB_F_FB', pose='TB_F_FB_000000000043_keypoints.json'):
