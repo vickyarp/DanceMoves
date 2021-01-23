@@ -32,9 +32,13 @@ def secondPage():
                     'margin': 0,
                 },
                 children=[
-                    pose_card('TB_S_FB_frame43.png', key='qsearch-1'),
-                    pose_card('PC_F_frame_72.png', key='qsearch-2'),
-                    pose_card('SYN_K_frame22.png', key='qsearch-3')],
+                    # pose_card('TB_S_FB_frame43.png', key='qsearch-1'),
+                    # pose_card('PC_F_frame_72.png', key='qsearch-2'),
+                    # pose_card('SYN_K_frame22.png', key='qsearch-3')],
+                    pose_card('LU_S_big_frame_52.png', key='qsearch-1', title= 'First Arabesque'),
+                    pose_card('TOS_F_frame_38.png', key='qsearch-2', title='Demi-plié (in 5th position)'),
+                    pose_card('CU_R_NA_frame_6.png', key='qsearch-3', title= 'Relevé (in 3rd position)')],
+
             ),
             dbc.Col(
                 id='cl2',

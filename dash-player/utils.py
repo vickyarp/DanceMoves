@@ -413,9 +413,14 @@ BODYPART_THUMBS_TINY = [
 ]
 
 POSES_DICT = {
-    'qsearch-1': {'src': 'TB_S_FB_frame43.png', 'data':'TB_S_FB_000000000043_keypoints.json'},
-    'qsearch-2': {'src': 'PC_F_frame_72.png', 'data': 'PC_F_000000000072_keypoints.json'},
-    'qsearch-3': {'src': 'SYN_K_frame22.png', 'data': 'SYN_K_000000000022_keypoints.json'},
+    #'qsearch-1': {'src': 'TB_S_FB_frame43.png', 'data':'TB_S_FB_000000000043_keypoints.json'},
+    'qsearch-1': {'src': 'LU_S_big_frame_52.png', 'data':'LU_S_big_000000000052_keypoints.json'},
+    'qsearch-2': {'src': 'TOS_F_frame_38.png', 'data': 'TOS_F_000000000038_keypoints.json'},
+    #'qsearch-2': {'src': 'PC_F_frame_72.png', 'data': 'PC_F_000000000072_keypoints.json'},
+    'qsearch-3': {'src': 'CU_R_NA_frame_6.png', 'data': 'CU_R_NA_000000000006_keypoints.json'},
+    #'qsearch-3': {'src': 'SYN_K_frame22.png', 'data': 'SYN_K_000000000022_keypoints.json'},
+
+
 
 }
 
