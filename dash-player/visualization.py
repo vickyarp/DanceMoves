@@ -260,15 +260,20 @@ def get_dataframes(video_selected1):
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
     url1 = '/assets/{}.mp4'.format(video_selected1)
     duration = 5 ##################################################### TODO
-    df_angles = create_df(video_selected1)
+    df_angles = create_df(video_selected1, similarity='angle')
     df_angles.insert(0, 'angles', BODYPART_THUMBS, True)
     df_angles.insert(1, 'id', [i for i in range(29)], True)
+
+    df_veloc = create_df(video_selected1, similarity='velocity')
+    df_veloc.insert(0, 'angles', BODYPART_THUMBS, True)
+    df_veloc.insert(1, 'id', [i for i in range(29)], True)
+
     keypoints1 = get_keypoints(video_selected1)
     data = []
     for frame in keypoints1:
         df = create_coordinate_df(frame)
         data.append(df.to_json())
-    return df_angles.to_json(), df_angles.to_json(), data, url1, duration
+    return df_angles.to_json(), df_veloc.to_json(), data, url1, duration
 
 @app.callback([Output('angle-memory-table2', 'data'),
                Output('veloc-memory-table2', 'data'),
@@ -279,15 +284,17 @@ def get_dataframes(video_selected2):
     if not video_selected2:
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update
     url2 = '/assets/{}.mp4'.format(video_selected2)
-    duration = 5 ##################################################### TODO
-    df2_angles = create_df(video_selected2)
+    df2_angles = create_df(video_selected2, similarity='angle')
     df2_angles.insert(0, 'angles', BODYPART_THUMBS, True)
+
+    df2_veloc = create_df(video_selected2, similarity='velocity')
+    df2_veloc.insert(0, 'angles', BODYPART_THUMBS, True)
     keypoints2 = get_keypoints(video_selected2)
     data = []
     for frame in keypoints2:
         df = create_coordinate_df(frame)
         data.append(df.to_json())
-    return df2_angles.to_json(), df2_angles.to_json(), data, url2
+    return df2_angles.to_json(), df2_veloc.to_json(), data, url2
 
 
 @app.callback([Output('overall_similarity_angle', 'value'),
@@ -298,17 +305,17 @@ def get_dataframes(video_selected2):
                Input('memory-video2', 'value')])
 def get_dataframes(video_selected1, video_selected2):
     if not video_selected1 or not video_selected2:
-<<<<<<< HEAD
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update
-    angles1 = create_angles(video_selected1).T.fillna(0)
-    angles2 = create_angles(video_selected2).T.fillna(0)
-=======
-        return dash.no_update
-    angles1 = create_angles(video_selected1).fillna(0)
-    angles2 = create_angles(video_selected2).fillna(0)
->>>>>>> 27171f86788777ccc0f4807a0bc006f56cb398d7
-    similarity, dtw_alignment = overall_similarity(angles1, angles2)
-    return similarity, similarity+1, dtw_alignment, dtw_alignment
+
+    angles1 = create_angles(video_selected1, similarity='angle').fillna(0)
+    angles2 = create_angles(video_selected2, similarity='angle').fillna(0)
+    angle_similarity, angle_dtw_alignment = overall_similarity(angles1, angles2)
+
+    angles1 = create_angles(video_selected1, similarity='velocity').fillna(0)
+    angles2 = create_angles(video_selected2, similarity='velocity').fillna(0)
+    veloc_similarity, veloc_dtw_alignment = overall_similarity(angles1, angles2)
+    print('allignments same: {}'.format(angle_dtw_alignment == veloc_dtw_alignment))
+    return angle_similarity, veloc_similarity, angle_dtw_alignment, veloc_dtw_alignment
 
 
 @app.callback([Output('memory-table1', 'data'),
@@ -327,8 +334,8 @@ def switch_similarity_metric(tab, angles_table1, angles_table2, veloc_table1, ve
     if tab == 'tab-2':
         return angles_table1, angles_table2, angles_dtw
     if tab == 'tab-1':
-        return veloc_table2, veloc_table1, veloc_dtw
-    return dash.no_update, dash.no_update
+        return veloc_table1, veloc_table2, veloc_dtw
+    return dash.no_update, dash.no_update, dash.no_update
 
 
 @app.callback([Output('video-player', 'playing'),
@@ -415,7 +422,6 @@ def update_position(currentTime, value, duration, playing):
 #     else: return dash.no_update
 
 
-
 @app.callback(Output('tabs-content', 'children'),
               [Input('table-tabs', 'value'),
                Input('memory-frames1', 'data'),
@@ -423,12 +429,12 @@ def update_position(currentTime, value, duration, playing):
                Input('memory-table2', 'data'),
                Input('video-player', 'playing'),
                Input('memory-frame-no', 'data'),
-               Input('selected-row-state', 'data')],
-               [State('video-player', 'currentTime'),
-                State('dtw-alignment', 'data')])
-def render_content(tab, dft, df_angles, df2_angles, playing, frame_no, selected_rows, currentTime, dtw_alignment):
+               Input('selected-row-state', 'data'),
+               Input('dtw-alignment', 'data')],
+               State('video-player', 'currentTime'),
+               )
+def render_content(tab, dft, df_angles, df2_angles, playing, frame_no, selected_rows, dtw_alignment, currentTime):
     try:
-<<<<<<< HEAD
         # if tab == 'tab-1':
         #     df_angles = pd.read_json(df_angles)
         #     df2_angles = pd.read_json(df2_angles)
@@ -447,29 +453,6 @@ def render_content(tab, dft, df_angles, df2_angles, playing, frame_no, selected_
                modal(df_angles, frame_no),\
                render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
                modal(df2_angles, frame_no+2)
-=======
-        if tab == 'tab-1':
-            df = dft[frame_no]
-            df = pd.read_json(df)
-            return [html.Div([
-                html.H4('Frame #{}'.format(frame_no)),
-                dash_table.DataTable(
-                    id='table-tab1',
-                    columns=[{"name": i, "id": i, 'format': Format(precision=2, scheme=Scheme.fixed),} for i in df.columns],
-                    data=df.to_dict('records'),
-                    style_table={'overflowX': 'scroll'},
-                )
-            ])]
-        elif tab == 'tab-2':
-            df_angles = pd.read_json(df_angles)
-            df2_angles = pd.read_json(df2_angles)
-            print('frame: {}, dtw-alignment: {}'.format(frame_no, dtw_alignment[str(frame_no)]))
-            return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
-            # return render_datatable(df_angles, frame_no, mode='pixel'), \
-            #        modal(df_angles, frame_no),\
-            #        render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
-            #        modal(df2_angles, frame_no+2)
->>>>>>> 27171f86788777ccc0f4807a0bc006f56cb398d7
     except:
         return dash.no_update
 
