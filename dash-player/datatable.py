@@ -94,7 +94,10 @@ def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize=
                 style_data_conditional=styles,
                 tooltip_data=tooltip_angles(type='angles_small'),
                 tooltip_delay=0,
-                tooltip_duration=None
+                tooltip_duration=None,
+                # row_selectable='multi',
+                # selected_rows=selected_rows,
+                # sort_action='custom',
             ),
         ])
     # Difference table case

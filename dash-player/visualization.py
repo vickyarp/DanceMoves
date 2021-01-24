@@ -13,20 +13,15 @@ import numpy as np
 import pandas as pd
 from datatable import render_datatable
 from modal import modal
-from secondPage import secondPage
 from utils import COLORS, PAIRS_RENDER, DATASET_VIDEOS, BODYPART_THUMBS, POSES_DICT, BODYPART_INDEX_CANONICAL, update_selected_state, angles_to_ids, angle_ids_to_angles
 from keypoint_frames import get_keypoints
 from keypoint_frames import create_df
 from render_stick_figure import render_stick_figure
-from overall_video_similarity import create_angles, overall_similarity, pose_query
-from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
-from clustering_new import get_dendogram
+from overall_video_similarity import create_angles, overall_similarity
 
 from app import app
 # # app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-update_title=None
-DURATION = 4.105
 
 def get_coordinates(points_with_confidence):
     # points_with_confidence = keypoints[i]
@@ -60,14 +55,26 @@ similarity_layout = html.Div([
             'margin': '1% 2% 2% 1%'
         },
         children=[
-            dcc.Store(id='memory-output1'),
-            dcc.Store(id='memory-output2'),
-            dcc.Store(id='memory-table'),
+            dcc.Store(id='memory-frames1'),
+            dcc.Store(id='memory-frames2'),
+            # dcc.Store(id='angle-memory-frames1'),
+            # dcc.Store(id='angle-memory-frames2'),
+
+            dcc.Store(id='memory-table1'),
             dcc.Store(id='memory-table2'),
+            dcc.Store(id='angle-memory-table1'),
+            dcc.Store(id='angle-memory-table2'),
+            dcc.Store(id='veloc-memory-table1'),
+            dcc.Store(id='veloc-memory-table2'),
+
             dcc.Store(id='current-time1'),
             dcc.Store(id='current-time2'),
-            dcc.Store(id='memory-frame'),
+            dcc.Store(id='memory-frame-no'),
+
             dcc.Store(id='dtw-alignment'),
+            dcc.Store(id='angle-dtw-alignment'),
+            dcc.Store(id='veloc-dtw-alignment'),
+
             dcc.Store(id='selected-row-state'),
             dcc.Store(id='selected-points-state'),
             dcc.Store(id='temp-state'),
@@ -119,7 +126,7 @@ similarity_layout = html.Div([
                     dcc.RangeSlider(
                         id='range-slider',
                         min=0,
-                        max=DURATION,
+                        max=5,
                         step=0.001,
                         value=[0, 3],
                         updatemode='drag',
@@ -180,17 +187,34 @@ similarity_layout = html.Div([
                 ]),
                 html.Div(id='tabs-content'),
             ]),
-            drc.Card([
-                html.H3(children=[
-                    'Overall similarity',
+            dbc.Row([
+            drc.Card(
+                html.H4(children=[
+                    'Overall Angle similarity',
                     dcc.Input(
-                        id='overall_similarity',
+                        id='overall_similarity_angle',
                         type='text',
                         value='',
-                        readOnly=True
-                    ),
-                ])
-            ]),
+                        readOnly=True,
+                        style={'width':'100px', 'margin-left': '5px'}
+                    )],
+                ),
+                style={'width': '45%'},
+            ),
+            drc.Card(
+                html.H4(children=[
+                    'Overall Velocity similarity',
+                    dcc.Input(
+                        id='overall_similarity_veloc',
+                        type='text',
+                        value='',
+                        readOnly=True,
+                        style={'width': '100px', 'margin-left': '5px'}
+                    )]
+                ),
+                style={'width': '45%'},
+            ),
+            ])
         ]
     ),
     html.Div(
@@ -225,14 +249,15 @@ similarity_layout = html.Div([
            , style={'text-align': 'center', 'fontSize': 16})
 ])
 
-@app.callback([Output('memory-table', 'data'),
-               Output('memory-output1', 'data'),
+@app.callback([Output('angle-memory-table1', 'data'),
+               Output('veloc-memory-table1', 'data'),
+               Output('memory-frames1', 'data'),
                Output('video-player', 'url'),
                Output('video-player', 'duration')],
               Input('memory-video1', 'value'))
 def get_dataframes(video_selected1):
     if not video_selected1:
-        return dash.no_update, dash.no_update, dash.no_update, dash.no_update
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
     url1 = '/assets/{}.mp4'.format(video_selected1)
     duration = 5 ##################################################### TODO
     df_angles = create_df(video_selected1)
@@ -243,15 +268,16 @@ def get_dataframes(video_selected1):
     for frame in keypoints1:
         df = create_coordinate_df(frame)
         data.append(df.to_json())
-    return df_angles.to_json(), data, url1, duration
+    return df_angles.to_json(), df_angles.to_json(), data, url1, duration
 
-@app.callback([Output('memory-table2', 'data'),
-               Output('memory-output2', 'data'),
+@app.callback([Output('angle-memory-table2', 'data'),
+               Output('veloc-memory-table2', 'data'),
+               Output('memory-frames2', 'data'),
                Output('video-player2', 'url')],
               Input('memory-video2', 'value'))
 def get_dataframes(video_selected2):
     if not video_selected2:
-        return dash.no_update, dash.no_update, dash.no_update
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update
     url2 = '/assets/{}.mp4'.format(video_selected2)
     duration = 5 ##################################################### TODO
     df2_angles = create_df(video_selected2)
@@ -261,23 +287,42 @@ def get_dataframes(video_selected2):
     for frame in keypoints2:
         df = create_coordinate_df(frame)
         data.append(df.to_json())
-    return df2_angles.to_json(), data, url2
+    return df2_angles.to_json(), df2_angles.to_json(), data, url2
 
 
-@app.callback([Output('overall_similarity', 'value'),
-              Output('dtw-alignment', 'data')],
+@app.callback([Output('overall_similarity_angle', 'value'),
+               Output('overall_similarity_veloc', 'value'),
+               Output('angle-dtw-alignment', 'data'),
+               Output('veloc-dtw-alignment', 'data')],
               [Input('memory-video1', 'value'),
                Input('memory-video2', 'value')])
 def get_dataframes(video_selected1, video_selected2):
     if not video_selected1 or not video_selected2:
-        return dash.no_update
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update
     angles1 = create_angles(video_selected1).T.fillna(0)
     angles2 = create_angles(video_selected2).T.fillna(0)
     similarity, dtw_alignment = overall_similarity(angles1, angles2)
-    return similarity, dtw_alignment
+    return similarity, similarity+1, dtw_alignment, dtw_alignment
 
 
-
+@app.callback([Output('memory-table1', 'data'),
+               Output('memory-table2', 'data'),
+               # Output('memory-frame-no', 'data'),
+               # Input('selected-row-state', 'data'),
+               Output('dtw-alignment', 'data')],
+               Input('table-tabs', 'value'),
+              [State('angle-memory-table1', 'data'),
+               State('angle-memory-table2', 'data'),
+               State('veloc-memory-table1', 'data'),
+               State('veloc-memory-table2', 'data'),
+               State('angle-dtw-alignment', 'data'),
+               State('angle-dtw-alignment', 'data')])
+def switch_similarity_metric(tab, angles_table1, angles_table2, veloc_table1, veloc_table2, angles_dtw, veloc_dtw):
+    if tab == 'tab-2':
+        return angles_table1, angles_table2, angles_dtw
+    if tab == 'tab-1':
+        return veloc_table2, veloc_table1, veloc_dtw
+    return dash.no_update, dash.no_update
 
 
 @app.callback([Output('video-player', 'playing'),
@@ -306,7 +351,7 @@ def update_output(value, duration):
         return 'Playback range: "{}"'.format(value), dash.no_update
 
 
-@app.callback(Output('memory-frame', 'data'),
+@app.callback(Output('memory-frame-no', 'data'),
               Input('video-player', 'currentTime'))
 def update_current_frame(currentTime):
     try:
@@ -354,7 +399,7 @@ def update_position(currentTime, value, duration, playing):
 # @app.callback(Output('table', 'data'),
 #               [Input('video-player', 'playing')],
 #               [State('video-player', 'currentTime'),
-#                State('memory-output1', 'data')])
+#                State('memory-frames1', 'data')])
 # def update_table(playing, currentTime, video_frames):
 #     if not playing and currentTime and currentTime > 0:
 #         df1 = pd.read_json(video_frames[int(np.round(currentTime / .04))])
@@ -366,60 +411,56 @@ def update_position(currentTime, value, duration, playing):
 
 @app.callback(Output('tabs-content', 'children'),
               [Input('table-tabs', 'value'),
-               Input('memory-output1', 'data'),
-               Input('memory-table', 'data'),
+               Input('memory-frames1', 'data'),
+               Input('memory-table1', 'data'),
                Input('memory-table2', 'data'),
                Input('video-player', 'playing'),
-               Input('memory-frame', 'data'),
+               Input('memory-frame-no', 'data'),
                Input('selected-row-state', 'data')],
                [State('video-player', 'currentTime'),
                 State('dtw-alignment', 'data')])
 def render_content(tab, dft, df_angles, df2_angles, playing, frame_no, selected_rows, currentTime, dtw_alignment):
     try:
-        if tab == 'tab-1':
-            df = dft[frame_no]
-            df = pd.read_json(df)
-            return [html.Div([
-                html.H4('Frame #{}'.format(frame_no)),
-                dash_table.DataTable(
-                    id='table-tab1',
-                    columns=[{"name": i, "id": i, 'format': Format(precision=2, scheme=Scheme.fixed),} for i in df.columns],
-                    data=df.to_dict('records'),
-                    style_table={'overflowX': 'scroll'},
-                )
-            ])]
-        elif tab == 'tab-2':
-            df_angles = pd.read_json(df_angles)
-            df2_angles = pd.read_json(df2_angles)
-            print('frame: {}, dtw-alignment: {}'.format(frame_no, dtw_alignment[str(frame_no)]))
-            # return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
-            return render_datatable(df_angles, frame_no, mode='pixel'), \
-                   modal(df_angles, frame_no),\
-                   render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
-                   modal(df2_angles, frame_no+2)
+        # if tab == 'tab-1':
+        #     df_angles = pd.read_json(df_angles)
+        #     df2_angles = pd.read_json(df2_angles)
+        #     print('frame: {}, dtw-alignment: {}'.format(frame_no, dtw_alignment[str(frame_no)]))
+        #     # return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
+        #     return render_datatable(df_angles, frame_no, mode='pixel'), \
+        #            modal(df_angles, frame_no), \
+        #            render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
+        #            modal(df2_angles, frame_no + 2)
+        # elif tab == 'tab-2':
+        df_angles = pd.read_json(df_angles)
+        df2_angles = pd.read_json(df2_angles)
+        print('frame: {}, dtw-alignment: {}'.format(frame_no, dtw_alignment[str(frame_no)]))
+        # return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
+        return render_datatable(df_angles, frame_no, mode='pixel'), \
+               modal(df_angles, frame_no),\
+               render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
+               modal(df2_angles, frame_no+2)
     except:
         return dash.no_update
 
 
 @app.callback(Output('graph-im1', 'figure'),
               [Input('video-player', 'playing'),
-               Input('memory-frame', 'data'),
+               Input('memory-frame-no', 'data'),
                Input('graph-im1', 'restyleData'),
                Input('reset-selection', 'n_clicks'),
                Input('selected-points-state', 'data')],
-              [State('memory-output1', 'data'),
+              [State('memory-frames1', 'data'),
                State('memory-video1', 'value'),
                State('graph-im1', 'figure')])
 # def update_figure(playing, selectedData, clickData, restyleData, n_clicks, selected_points, currentTime, video_frames, video1, fig):
 def update_figure(playing, frame_no, restyleData, n_clicks, selected_points, video_frames, video1, fig):
     try:
         ctx = dash.callback_context
-        if ctx.triggered[0]['prop_id'] in ['video-player.playing', 'memory-frame.data']:
+        if ctx.triggered[0]['prop_id'] in ['video-player.playing', 'memory-frame-no.data']:
             try:
                 if not playing and frame_no:
                     df = pd.read_json(video_frames[frame_no])
                     return render_stick_figure(df, video1)
-
                 else: return dash.no_update
             except:
                 return dash.no_update
@@ -476,10 +517,10 @@ def update_figure(playing, frame_no, restyleData, n_clicks, selected_points, vid
 
 @app.callback(Output('graph-im2', 'figure'),
               [Input('video-player2', 'playing'),
-               Input('memory-frame', 'data')],
+               Input('memory-frame-no', 'data')],
               [State('video-player2', 'currentTime'),
                State('memory-video2', 'value'),
-               State('memory-output2', 'data')])
+               State('memory-frames2', 'data')])
 def update_figure(playing, frame_no, currentTime, video2, video_frames):
     try:
         if not playing and frame_no:
@@ -530,38 +571,6 @@ def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
-
-### Search Query callbacks
-# @app.callback(Output('dif-table', 'children'),
-#               [Input('memory-video1', 'value'),
-#                Input('qsearch-1', 'n_clicks'),
-#                Input('qsearch-2', 'n_clicks'),
-#                Input('qsearch-3', 'n_clicks')],
-#               )
-# def render_dif_table(value, click1, click2, click3):
-#     # if not click1 or not click2 or not click3 or not value:
-#     #     return dash.no_update
-#     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-#     print(changed_id)
-#     if 'qsearch-1' in changed_id:
-#         pose = POSES_DICT['qsearch-1']['data']
-#     elif 'qsearch-2' in changed_id:
-#         pose = POSES_DICT['qsearch-2']['data']
-#     elif 'qsearch-3' in changed_id:
-#         pose = POSES_DICT['qsearch-3']['data']
-#     else: return dash.no_update
-#
-#     df_angles_dif = pose_query(value, pose)
-#     df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
-#     return render_datatable(df_angles_dif, pagesize=12, dif_table='true')
-
-# ### Datatable Callbacks
-# @app.callback(Output('table-tab2-main', 'selected_rows'),
-#                Input('memory-frame', 'data'))
-# def update_selected_column(frame_no):
-#     # print('Frame:{}'.format(frame_no))
-#     return [0]
-
 
 
 @app.callback(Output('selected-points-state', 'data'),
