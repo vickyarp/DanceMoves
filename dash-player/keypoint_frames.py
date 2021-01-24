@@ -77,7 +77,7 @@ def get_keypoints(video):
     return frames_csv
 
 
-def create_df(video):
+def create_df(video, similarity = 'angle'):
     newDF = pd.DataFrame(index=range(29))
     i = 0
 
@@ -332,6 +332,23 @@ def create_df(video):
         i += 1
         # print(bodyvector1)
     # newDF = newDF.fillna(0)
+
+
+    def create_velocity_df(Z_angles):
+        newDF = pd.DataFrame(index=range(29),columns=range(Z_angles.shape[1]-1))
+        i=0
+        for j in range(Z_angles.shape[1]):
+            bodyvector = Z_angles[j]-Z_angles[j+1]
+            new_bodyvector=pd.DataFrame(bodyvector)
+            newDF[i]=new_bodyvector
+            i+=1
+            if j == (Z_angles.shape[1] - 2) :
+                break
+        return newDF
+
+    if similarity == 'velocity':
+        newDF = create_velocity_df(newDF)
+
 
     ## rename columns and index
     columns = {}

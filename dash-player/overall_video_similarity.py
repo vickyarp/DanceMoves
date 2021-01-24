@@ -275,9 +275,22 @@ def compute_angle_vector(data, type):
     return body_vector
 
 
+def create_velocity_df(Z_angles):
+    newDF = pd.DataFrame(index=range(29),columns=range(Z_angles.shape[1]-1))
+    i=0
+    for j in range(Z_angles.shape[1]):
+        bodyvector = Z_angles[j]-Z_angles[j+1]
+        new_bodyvector=pd.DataFrame(bodyvector)
+        newDF[i]=new_bodyvector
+        i+=1
+        if j == (Z_angles.shape[1] - 2) :
+            break
+    return newDF
+
+
 # %%
 
-def create_angles(video, type='cosine'):
+def create_angles(video, type='cosine', similarity='angle'):
     newDF = pd.DataFrame(index=range(29))
     i = 0
 
@@ -298,76 +311,32 @@ def create_angles(video, type='cosine'):
         i += 1
         f.close()
         # print(bodyvector1)
-
+    if similarity == 'velocity':
+        newDF = create_velocity_df(newDF)
     return newDF
 
 # %%
 
-# X_angles = create_angles('AS_L_NA')
-# # Y_angles = create_angles('SYN_B')
-# #
-# # # %%
-# #
-# # X_angles = X_angles.fillna(0)
-# # Y_angles = Y_angles.fillna(0)
 
-
-#%%vicky
-def create_velocity_df(Z_angles):
-    newDF = pd.DataFrame(index=range(29),columns=range(Z_angles.shape[1]-1))
-    i=0
-    for j in range(Z_angles.shape[1]):
-        bodyvector = Z_angles[j]-Z_angles[j+1]
-        new_bodyvector=pd.DataFrame(bodyvector)
-        newDF[i]=new_bodyvector
-        i+=1
-        if j == (Z_angles.shape[1] - 2) :
-            break
-    return newDF
-
-
-#X = create_velocity_df(X_angles)
-#Y = create_velocity_df(Y_angles)
-
-# %%
 
 def overall_similarity(X_angles, Y_angles):
     similar_num = 0
     cos_vector = np.array([])
-    path = dtw_path(X_angles, Y_angles)[0]
+    path = dtw_path(X_angles.T, Y_angles.T)[0]
 
     path_dict = dict()
     for f1, f2 in path:
         path_dict.setdefault(f1, []).append(f2)
 
     for i, j in path:
-        a = cosine_similarity(X_angles.T[i].values.reshape(1, -1), Y_angles.T[j].values.reshape(1, -1))
+        a = cosine_similarity(X_angles[i].values.reshape(1, -1), Y_angles[j].values.reshape(1, -1))
         # delete arrays with zeros
         if a != (np.array([0])):
             cos_vector = np.append(cos_vector, a)
     similar_num = round(np.mean(cos_vector), 3)
     return similar_num, path_dict
 
-
 # %%
-
-
-def velocity_similarity(X ,Y ):
-    similar_num=0
-    cos_vector=np.array([])
-
-    path=dtw_path(X.T , Y.T)[0]
-    for i,j in path:
-        a=cosine_similarity(X[i].values.reshape(1,-1),Y[j].values.reshape(1,-1))
-
-    #delete arrays with zeros
-        if a != (np.array([0])):
-            cos_vector=np.append(cos_vector,a )
-    #print(cos_vector)
-    similar_num=round(np.mean(cos_vector),3)
-    return similar_num
-
-#x = velocity_similarity(X , Y)
 
 
 

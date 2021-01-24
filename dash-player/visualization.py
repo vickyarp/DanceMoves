@@ -271,8 +271,8 @@ def get_dataframes(video_selected2):
 def get_dataframes(video_selected1, video_selected2):
     if not video_selected1 or not video_selected2:
         return dash.no_update
-    angles1 = create_angles(video_selected1).T.fillna(0)
-    angles2 = create_angles(video_selected2).T.fillna(0)
+    angles1 = create_angles(video_selected1).fillna(0)
+    angles2 = create_angles(video_selected2).fillna(0)
     similarity, dtw_alignment = overall_similarity(angles1, angles2)
     return similarity, dtw_alignment
 
@@ -364,6 +364,7 @@ def update_position(currentTime, value, duration, playing):
 #     else: return dash.no_update
 
 
+
 @app.callback(Output('tabs-content', 'children'),
               [Input('table-tabs', 'value'),
                Input('memory-output1', 'data'),
@@ -392,11 +393,11 @@ def render_content(tab, dft, df_angles, df2_angles, playing, frame_no, selected_
             df_angles = pd.read_json(df_angles)
             df2_angles = pd.read_json(df2_angles)
             print('frame: {}, dtw-alignment: {}'.format(frame_no, dtw_alignment[str(frame_no)]))
-            # return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
-            return render_datatable(df_angles, frame_no, mode='pixel'), \
-                   modal(df_angles, frame_no),\
-                   render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
-                   modal(df2_angles, frame_no+2)
+            return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
+            # return render_datatable(df_angles, frame_no, mode='pixel'), \
+            #        modal(df_angles, frame_no),\
+            #        render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
+            #        modal(df2_angles, frame_no+2)
     except:
         return dash.no_update
 
