@@ -298,9 +298,15 @@ def get_dataframes(video_selected2):
                Input('memory-video2', 'value')])
 def get_dataframes(video_selected1, video_selected2):
     if not video_selected1 or not video_selected2:
+<<<<<<< HEAD
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update
     angles1 = create_angles(video_selected1).T.fillna(0)
     angles2 = create_angles(video_selected2).T.fillna(0)
+=======
+        return dash.no_update
+    angles1 = create_angles(video_selected1).fillna(0)
+    angles2 = create_angles(video_selected2).fillna(0)
+>>>>>>> 27171f86788777ccc0f4807a0bc006f56cb398d7
     similarity, dtw_alignment = overall_similarity(angles1, angles2)
     return similarity, similarity+1, dtw_alignment, dtw_alignment
 
@@ -409,6 +415,7 @@ def update_position(currentTime, value, duration, playing):
 #     else: return dash.no_update
 
 
+
 @app.callback(Output('tabs-content', 'children'),
               [Input('table-tabs', 'value'),
                Input('memory-frames1', 'data'),
@@ -421,6 +428,7 @@ def update_position(currentTime, value, duration, playing):
                 State('dtw-alignment', 'data')])
 def render_content(tab, dft, df_angles, df2_angles, playing, frame_no, selected_rows, currentTime, dtw_alignment):
     try:
+<<<<<<< HEAD
         # if tab == 'tab-1':
         #     df_angles = pd.read_json(df_angles)
         #     df2_angles = pd.read_json(df2_angles)
@@ -439,6 +447,29 @@ def render_content(tab, dft, df_angles, df2_angles, playing, frame_no, selected_
                modal(df_angles, frame_no),\
                render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
                modal(df2_angles, frame_no+2)
+=======
+        if tab == 'tab-1':
+            df = dft[frame_no]
+            df = pd.read_json(df)
+            return [html.Div([
+                html.H4('Frame #{}'.format(frame_no)),
+                dash_table.DataTable(
+                    id='table-tab1',
+                    columns=[{"name": i, "id": i, 'format': Format(precision=2, scheme=Scheme.fixed),} for i in df.columns],
+                    data=df.to_dict('records'),
+                    style_table={'overflowX': 'scroll'},
+                )
+            ])]
+        elif tab == 'tab-2':
+            df_angles = pd.read_json(df_angles)
+            df2_angles = pd.read_json(df2_angles)
+            print('frame: {}, dtw-alignment: {}'.format(frame_no, dtw_alignment[str(frame_no)]))
+            return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
+            # return render_datatable(df_angles, frame_no, mode='pixel'), \
+            #        modal(df_angles, frame_no),\
+            #        render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
+            #        modal(df2_angles, frame_no+2)
+>>>>>>> 27171f86788777ccc0f4807a0bc006f56cb398d7
     except:
         return dash.no_update
 
