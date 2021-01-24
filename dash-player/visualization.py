@@ -450,9 +450,9 @@ def render_content(tab, dft, df_angles, df2_angles, playing, frame_no, selected_
         print('frame: {}, dtw-alignment: {}'.format(frame_no, dtw_alignment[str(frame_no)]))
         # return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
         return render_datatable(df_angles, frame_no, mode='pixel'), \
-               modal(df_angles, frame_no),\
+               modal(df_angles, frame_no, index=1),\
                render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
-               modal(df2_angles, frame_no+2)
+               modal(df2_angles, frame_no, index=2)
     except:
         return dash.no_update
 
@@ -576,15 +576,16 @@ def update_time(currentTime, currentTime2):
 def update_methods(secondsLoaded, duration):
     return 'Second Loaded: {}, Duration: {}'.format(secondsLoaded, duration)
 
-@app.callback(
-    Output("modal-centered", "is_open"),
-    [Input("open-centered", "n_clicks"), Input("close-centered", "n_clicks")],
-    [State("modal-centered", "is_open")],
-)
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
+# @app.callback(
+#     Output("modal-centered", "is_open"),
+#     [Input({'type': 'modal-button-open', 'id': ALL}, "n_clicks"),
+#      Input({'type': 'modal-button-close', 'id': ALL}, "n_clicks")],
+#     [State("modal-centered", "is_open")],
+# )
+# def toggle_modal(n1, n2, is_open):
+#     if n1 or n2:
+#         return not is_open
+#     return is_open
 
 
 @app.callback(Output('selected-points-state', 'data'),

@@ -4,7 +4,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 import dash_reusable_components as drc
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output, State, ALL
+from dash.dependencies import Input, Output, State, ALL, MATCH
 import dash_table
 from dash_table.Format import Format, Scheme
 import plotly.graph_objects as go
@@ -19,7 +19,7 @@ from keypoint_frames import create_df
 from overall_video_similarity import create_angles, overall_similarity
 from render_stick_figure import render_stick_figure
 from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles, Blue, Sand, Else, Green
-
+from buttongroup import buttongroup, GROUPBY_SELECTION
 
 
 
@@ -163,6 +163,7 @@ page_1_layout = html.Div([
                     dcc.Tab(label='Frame Level', value='tab-1', style={'fontWeight': 'bold', 'height': '5vh'}),
                     dcc.Tab(label='Video Level', value='tab-2', style={'fontWeight': 'bold','height': '5vh'}),
                 ]),
+                buttongroup(),
                 dcc.RadioItems(
                     id='gradient-scheme',
                     options=[
@@ -431,32 +432,41 @@ def update_methods(secondsLoaded, duration):
 @app.callback(Output('selected-points-state_b', 'data'),
               [Input({'type': 'datatable',  'id': ALL}, 'derived_virtual_selected_row_ids'),
                Input('graph-im1_b', 'selectedData'),
-               Input('reset-selection_b', 'n_clicks')],
+               Input('reset-selection_b', 'n_clicks'),
+               Input({'type': 'group-by-button', 'index': ALL}, 'n_clicks_timestamp')],
               [State('selected-points-state_b', 'data'),
                State('graph-im1_b', 'figure')])
-def update_selected_rows(selected_rows, selectedData, n_clicks, selected_points, fig):
+def update_selected_rows(selected_rows, selectedData, n_clicks, group_by_click, selected_points, fig):
     try:
         default_state = {'angles': [], 'bodyparts': []}
         if selected_points == None: selected_points = default_state
         ctx = dash.callback_context
-        # print('616: {}'.format( ctx.triggered[0]['prop_id']))
-        if ctx.triggered[0]['prop_id'] == 'reset-selection_b.n_clicks':
+        trigger = ctx.triggered[0]['prop_id']
+        print('446: {}'.format( trigger), group_by_click)
+        print('{{"index":{},"type":"group-by-button"}}.n_clicks_timestamp'.format(group_by_click.index(max(group_by_click))))
+        if trigger == 'reset-selection_b.n_clicks':
             if n_clicks is None:
                 return dash.no_update
             else:
                 return default_state
-        elif ctx.triggered[0]['prop_id'] == 'graph-im1_b.selectedData':
+        elif trigger == 'graph-im1_b.selectedData':
             selection = [point["curveNumber"] for point in selectedData["points"]]
             selection_names = [fig["data"][curve_number]['name'] for curve_number in selection]
             selected_points = update_selected_state(state=selected_points, bodypart_names=selection_names)
             print('selected data to state: {}'.format(selected_points))
             return selected_points
-        elif ctx.triggered[0]['prop_id'] == '{"id":"table-tab2-main","type":"datatable"}.derived_virtual_selected_row_ids':
+        elif trigger == '{"id":"table-tab2-main","type":"datatable"}.derived_virtual_selected_row_ids':
             angles = angle_ids_to_angles(selected_rows[0])
             print(angles)
             selected_points = update_selected_state(state=selected_points, angle_names=angles)
             print('derived_virtual_selected_row_ids: {} -> selected_points: {}'.format(selected_rows, selected_points))
             return selected_points
+        elif trigger == '{{"index":{},"type":"group-by-button"}}.n_clicks_timestamp'.format(group_by_click.index(max(group_by_click))):
+            index = group_by_click.index(max(group_by_click))
+            print('index {}'.format(index))
+            selected_points = update_selected_state(state=default_state, angle_names=GROUPBY_SELECTION[index]['angles'])
+            return selected_points
+
         else:
             return default_state
     except:
