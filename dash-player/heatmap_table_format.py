@@ -45,8 +45,10 @@ def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[], colormap
             df_numeric_columns = df.select_dtypes('number')
     else:
         df_numeric_columns = df[columns]
-    df_max = df_numeric_columns.max().max()
-    df_min = df_numeric_columns.min().min()
+    # df_max = df_numeric_columns.max().max()
+    # df_min = df_numeric_columns.min().min()
+    df_max = 180
+    df_min = 0.01
     ranges = [
         ((df_max - df_min) * i) + df_min
         for i in bounds
@@ -75,12 +77,11 @@ def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[], colormap
         for row in selected_rows:
             styles.append({
                 'if': {
-                    # 'row_index': row,
-                    'filter_query': '{{id}} contains {}'.format(str(row)),
-                    'column_id': 'angles'
+                    'column_id': 'angles',
+                    'filter_query': '{{id}} = {}'.format(str(row)),
+
                 },
-                'backgroundColor': 'black',
-                'color': 'black'
+                'border': '4px rgb(50, 50, 50) solid'
             })
 
         legend.append(
