@@ -421,8 +421,6 @@ POSES_DICT = {
     'qsearch-3': {'src': 'CU_R_NA_frame_6.png', 'data': 'CU_R_NA_000000000006_keypoints.json'},
     #'qsearch-3': {'src': 'SYN_K_frame22.png', 'data': 'SYN_K_000000000022_keypoints.json'},
 
-
-
 }
 
 

@@ -181,7 +181,7 @@ similarity_layout = html.Div([
         },
         children=[
             html.Div(style={'min-height': '70vh'}, children=[
-                dcc.Tabs(id='table-tabs', value='tab-2', children=[
+                dcc.Tabs(id='table-tabs', value='tab-1', children=[
                     dcc.Tab(label='Angle Similarity', value='tab-2'),
                     dcc.Tab(label='Velocity Similarity', value='tab-1')
                 ]),
@@ -286,9 +286,12 @@ def get_dataframes(video_selected2):
     url2 = '/assets/{}.mp4'.format(video_selected2)
     df2_angles = create_df(video_selected2, similarity='angle')
     df2_angles.insert(0, 'angles', BODYPART_THUMBS, True)
+    df2_angles.insert(1, 'id', [i for i in range(29)], True)
 
     df2_veloc = create_df(video_selected2, similarity='velocity')
     df2_veloc.insert(0, 'angles', BODYPART_THUMBS, True)
+    df2_veloc.insert(1, 'id', [i for i in range(29)], True)
+
     keypoints2 = get_keypoints(video_selected2)
     data = []
     for frame in keypoints2:
@@ -435,16 +438,6 @@ def update_position(currentTime, value, duration, playing):
                )
 def render_content(tab, dft, df_angles, df2_angles, playing, frame_no, selected_rows, dtw_alignment, currentTime):
     try:
-        # if tab == 'tab-1':
-        #     df_angles = pd.read_json(df_angles)
-        #     df2_angles = pd.read_json(df2_angles)
-        #     print('frame: {}, dtw-alignment: {}'.format(frame_no, dtw_alignment[str(frame_no)]))
-        #     # return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
-        #     return render_datatable(df_angles, frame_no, mode='pixel'), \
-        #            modal(df_angles, frame_no), \
-        #            render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
-        #            modal(df2_angles, frame_no + 2)
-        # elif tab == 'tab-2':
         df_angles = pd.read_json(df_angles)
         df2_angles = pd.read_json(df2_angles)
         print('frame: {}, dtw-alignment: {}'.format(frame_no, dtw_alignment[str(frame_no)]))

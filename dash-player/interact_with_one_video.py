@@ -198,7 +198,7 @@ page_1_layout = html.Div([
                     style={'height': '50vh'}
                 ),
                 html.Div(
-                    children=[dbc.Button("Update", id="update-selection_b", style={'margin': '5px'}),
+                    children=[dbc.Button("Update", id="update-selection_b", n_clicks=0, style={'margin': '5px'}),
                               dbc.Button("Reset", id="reset-selection_b", style={'margin': '5px'})],
                     style={'display': 'flex', 'justify-content': 'center'}
                 ),
@@ -244,7 +244,6 @@ def update_prop_playing(values):
 def update_prop_loop(values):
     return 'loop' in values
 
-
 @app.callback(
     [Output('output-container-range-slider_b', 'children'),
      Output('range-slider_b', 'max')],
@@ -257,9 +256,11 @@ def update_output(value, duration):
         return 'Playback range: "{}"'.format(value), dash.no_update
 
 
+
 @app.callback(Output('memory-frame_b', 'data'),
-              Input('video-player_b', 'currentTime'))
-def update_current_frame(currentTime):
+              Input('video-player_b', 'currentTime'),
+              Input('update-selection_b', 'n_clicks'))
+def update_current_frame(currentTime, _):
     try:
         frame_no = int(np.round(currentTime / .04))
         return frame_no
@@ -306,11 +307,11 @@ def update_position(currentTime, value, duration, playing):
                Input('memory-output1_b', 'data'),
                Input('memory-table_b', 'data'),
                Input('video-player_b', 'playing'),
-               Input('selected-row-state', 'data'),
                Input('gradient-scheme', 'value'),
                Input('memory-frame_b', 'data')],
-               [State('video-player_b', 'currentTime')])
-def render_content(tab, dft, df_angles, playing, selected_rows, gradient_scheme, frame_no, currentTime):
+               [State('video-player_b', 'currentTime'),
+                State('selected-points-state_b', 'data')])
+def render_content(tab, dft, df_angles, playing, gradient_scheme, frame_no, currentTime, selected_rows_state):
     try:
         if tab == 'tab-1':
             df = dft[frame_no]
@@ -341,7 +342,10 @@ def render_content(tab, dft, df_angles, playing, selected_rows, gradient_scheme,
             #     colormap = Plasma
             # elif value == 'Else':
             #     colormap = Else
+
+            selected_rows = angles_to_ids(selected_rows_state['angles'])
             return render_datatable(df_angles, frame_no, selected_rows=selected_rows, colormap=colormaps[gradient_scheme]), modal(df_angles, frame_no)
+
     except:
         return dash.no_update
 
@@ -463,7 +467,6 @@ def update_selected_rows(selected_rows, selectedData, n_clicks, group_by_click, 
             return selected_points
         elif trigger == '{{"index":{},"type":"group-by-button"}}.n_clicks_timestamp'.format(group_by_click.index(max(group_by_click))):
             index = group_by_click.index(max(group_by_click))
-            print('index {}'.format(index))
             selected_points = update_selected_state(state=default_state, angle_names=GROUPBY_SELECTION[index]['angles'])
             return selected_points
 

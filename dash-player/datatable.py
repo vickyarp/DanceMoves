@@ -27,6 +27,7 @@ def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize=
             extra_styles_header, extra_styles = highlight_aligned_frame(aligned_frame_no)
             styles_header.append(extra_styles_header)
             styles = styles + extra_styles
+
         # Table Overview case
         if fullsize == 'true':
             df_angles.insert(0, 'angles_small', BODYPART_THUMBS_SMALL, True)
@@ -137,7 +138,8 @@ def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize=
                                     'type': 'numeric',
                                     'format': Format(precision=2, scheme=Scheme.fixed),
                                 } for i in df_angles.iloc[:, 2:].columns],
-                    data=df_angles.to_dict('records'),
+                    # data=df_angles.to_dict('records'),
+                    data=custom_sort_by(selected_rows, df_angles.to_dict('records')),
                     fixed_columns={'headers': True, 'data': 1},
                     style_data={'font-size': '18px', 'text-align': 'center',
                                 'p': {'margin-block-start': '0px', 'margin-block-end': '0px'}},
@@ -147,11 +149,11 @@ def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize=
                     },
                     style_cell={},
                     row_selectable='multi',
-                    selected_rows=selected_rows,
+                    selected_row_ids=selected_rows,
                     sort_action='custom',
                     page_size=pagesize,
-                    style_data_conditional=styles,
                     style_header_conditional=styles_header,
+                    style_data_conditional=styles,
                     tooltip_data=tooltip_angles(),
                     tooltip_delay=0,
                     tooltip_duration=None,
@@ -169,3 +171,26 @@ def render_frame_header(frame_no):
 def render_similarity_row(df_similarity):
     layout = html.Div()
     return layout
+
+def custom_sort_by(selected_row_ids, data):
+    selected_row_ids.sort()
+    for i in range(len(selected_row_ids)):
+        row = selected_row_ids[i]
+        index = next((j for j, item in enumerate(data) if item['id'] == row), -1)
+        data.insert(i, data.pop(index))
+    derived_virtual_selected_rows = [i for i in range(len(selected_row_ids))]
+
+    return data
+
+
+def compute_styles(df_angles, frame_no, selected_rows, colormap, aligned_frame_no=[]):
+    (styles, legend) = heatmap_table_format(df_angles, selected_rows=selected_rows, colormap=colormap)
+    styles_header = []
+    if frame_no != 'false':
+        styles_header, extra_styles = highlight_current_frame(frame_no)
+        styles.append(extra_styles)
+    if aligned_frame_no:
+        extra_styles_header, extra_styles = highlight_aligned_frame(aligned_frame_no)
+        styles_header.append(extra_styles_header)
+        styles = styles + extra_styles
+    return styles
