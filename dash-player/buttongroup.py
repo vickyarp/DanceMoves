@@ -10,24 +10,29 @@ GROUPBY_SELECTION = {
                 'left_eye_to_nose_to_neck',
                 'nose_to_neck_to_right_eye_to_nose',
                 'left_eye_to_nose_to_right_ear_to_eye',
-                'right_eye_to_nose_to_right_ear_to_eye'
+                'right_eye_to_nose_to_right_ear_to_eye',
             ],'bodyparts': []
 
         },
     1 : {'angles':
              [
-                'left_shoulder_to_left_upper_arm',
-                'left_lower_arm_to_left_upper_arm',
-                'right_upper_arm_to_right_shoulder',
-                'right_upper_arm_to_right_lower_arm',
+                'torso_to_right_shoulder',
+                'torso_to_left_shoulder',
+                'torso_to_nose_to_neck',
+                'torso_to_right_hip',
+                'torso_to_left_hip',
+
              ], 'bodyparts': []},
     2: {'angles':
         [
-            'torso_to_right_shoulder',
-            'torso_to_left_shoulder',
-            'torso_to_nose_to_neck',
-            'torso_to_right_hip',
-            'torso_to_left_hip',
+            'nose_to_neck_to_left_shoulder',
+            'nose_to_neck_to_right_shoulder',
+            'left_shoulder_to_right_shoulder',
+            'left_shoulder_to_left_upper_arm',
+            'left_lower_arm_to_left_upper_arm',
+            'right_upper_arm_to_right_shoulder',
+            'right_upper_arm_to_right_lower_arm',
+
         ], 'bodyparts': []},
     3: {'angles':
         [

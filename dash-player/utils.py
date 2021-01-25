@@ -10,7 +10,6 @@ THUMBNAIL_PATH = './assets/thumbnails/'
 POSE_PATH = './assets/search_query'
 
 DATASET_VIDEOS = [
-    'contemp1',
     'TB_F_FB',
     'UP3',
     'UP2',
@@ -155,6 +154,38 @@ PAIRS_RENDER = np.array(
     [[1, 8], [1, 2], [1, 5], [2, 3], [3, 4], [5, 6], [6, 7], [8, 9], [9, 10], [10, 11], [8, 12], [12, 13], [13, 14],
      [1, 0], [0, 15], [15, 17], [0, 16], [16, 18], [14, 19], [19, 20], [14, 21], [11, 22], [22, 23], [11, 24]])
 
+
+BODYPARTS_POINT = [
+     "Nose",
+     "Neck",
+     "Right Shoulder",
+     "Right Elbow",
+     "Right Wrist",
+     "Left Shoulder",
+     "Left Elbow",
+     "Left Wrist",
+     "MidHip",
+     "Right Hip",
+     "Right Knee",
+     "Right Ankle",
+     "Left Hip",
+     "Left Knee",
+     "Left Ankle",
+     "Right Eye",
+     "Left Eye",
+     "Right Ear",
+     "Left Ear",
+     "Left BigToe",
+     "Left SmallToe",
+     "Left Heel",
+     "Right BigToe",
+     "Right SmallToe",
+      "Right Heel",
+]
+
+
+
+
 BODY_SEGMENTS = {
     'torso': [1,8],
     'right_shoulder': [1,2],
@@ -193,7 +224,7 @@ BODYPART_INDEX = {
     7: 'left_eye_to_nose_to_left_ear_to_eye',
     8: 'left_eye_to_nose_to_neck',
     9: 'nose_to_neck_to_right_eye_to_nose',
-    10: 'left_eye_to_nose_to_right_ear_to_eye',
+    10: 'left_eye_to_nose_to_right_eye_to_nose',
     11: 'right_eye_to_nose_to_right_ear_to_eye',
     12: 'right_hip_to_right_upper_leg',
     13: 'right_upper_leg_to_right_lower_leg',
@@ -273,7 +304,7 @@ BODYPART_INDEX_CANONICAL = {
     7: 'left_eye_to_nose_to_left_ear_to_eye',
     8: 'left_eye_to_nose_to_neck',
     9: 'nose_to_neck_to_right_eye_to_nose',
-    10: 'left_eye_to_nose_to_right_ear_to_eye',
+    10: 'left_eye_to_nose_to_right_eye_to_nose',
     11: 'right_eye_to_nose_to_right_ear_to_eye',
 
     0: 'nose_to_neck_to_left_shoulder',
@@ -328,7 +359,7 @@ BODYPART_THUMBS = [
     '![myImage-8](assets/thumbnails/left_eye_to_nose_to_left_ear_to_eye.png)',
     '![myImage-9](assets/thumbnails/left_eye_to_nose_to_neck.png)',
     '![myImage-10](assets/thumbnails/nose_to_neck_to_right_eye_to_nose.png)',
-    '![myImage-11](assets/thumbnails/left_eye_to_nose_to_right_ear_to_eye.png)',
+    '![myImage-11](assets/thumbnails/left_eye_to_nose_to_right_eye_to_nose.png)',
     '![myImage-12](assets/thumbnails/right_eye_to_nose_to_right_ear_to_eye.png)',
     '![myImage-13](assets/thumbnails/right_hip_to_right_upper_leg.png)',
     '![myImage-14](assets/thumbnails/right_upper_leg_to_right_lower_leg.png)',
@@ -360,7 +391,7 @@ BODYPART_THUMBS_SMALL = [
     '![myImage-8](assets/thumbnails/small/left_eye_to_nose_to_left_ear_to_eye.png)',
     '![myImage-9](assets/thumbnails/small/left_eye_to_nose_to_neck.png)',
     '![myImage-10](assets/thumbnails/small/nose_to_neck_to_right_eye_to_nose.png)',
-    '![myImage-11](assets/thumbnails/small/left_eye_to_nose_to_right_ear_to_eye.png)',
+    '![myImage-11](assets/thumbnails/small/left_eye_to_nose_to_right_eye_to_nose.png)',
     '![myImage-12](assets/thumbnails/small/right_eye_to_nose_to_right_ear_to_eye.png)',
     '![myImage-13](assets/thumbnails/small/right_hip_to_right_upper_leg.png)',
     '![myImage-14](assets/thumbnails/small/right_upper_leg_to_right_lower_leg.png)',
@@ -392,7 +423,7 @@ BODYPART_THUMBS_TINY = [
     '![myImage-8](assets/thumbnails/tiny/left_eye_to_nose_to_left_ear_to_eye.png)',
     '![myImage-9](assets/thumbnails/tiny/left_eye_to_nose_to_neck.png)',
     '![myImage-10](assets/thumbnails/tiny/nose_to_neck_to_right_eye_to_nose.png)',
-    '![myImage-11](assets/thumbnails/tiny/left_eye_to_nose_to_right_ear_to_eye.png)',
+    '![myImage-11](assets/thumbnails/tiny/left_eye_to_nose_to_right_eye_to_nose.png)',
     '![myImage-12](assets/thumbnails/tiny/right_eye_to_nose_to_right_ear_to_eye.png)',
     '![myImage-13](assets/thumbnails/tiny/right_hip_to_right_upper_leg.png)',
     '![myImage-14](assets/thumbnails/tiny/right_upper_leg_to_right_lower_leg.png)',

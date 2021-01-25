@@ -6,7 +6,11 @@ Sand = [
     '#fbefcc',
     '#f9ccac',
     '#f4a688',
-    '#e0876a'
+    '#e0876a',
+    '#ddeedd',
+    '#bae4bc',
+    '#7bccc4',
+    '#2b8cbe',
 ]
 
 Else = [
@@ -14,6 +18,10 @@ Else = [
     '#fdcc8a',
     '#fc8d59',
     '#d7301f',
+    '#ddeedd',
+    '#bae4bc',
+    '#7bccc4',
+    '#2b8cbe',
 ]
 
 
@@ -22,6 +30,10 @@ Blue = [
     '#bae4bc',
     '#7bccc4',
     '#2b8cbe',
+    '#fef0d9',
+    '#fdcc8a',
+    '#fc8d59',
+    '#d7301f',
 ]
 
 Green = [
@@ -29,12 +41,16 @@ Green = [
     '#b2e2e2',
     '#66c2a4',
     '#238b45',
+    '#ddeedd',
+    '#bae4bc',
+    '#7bccc4',
+    '#2b8cbe',
 ]
 
 
 
 
-def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[], colormap = Blue):
+def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[], colormap = Blue, similarity = 'angle'):
 
 
     bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
@@ -49,6 +65,10 @@ def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[], colormap
     # df_min = df_numeric_columns.min().min()
     df_max = 180
     df_min = 0.01
+    if similarity == 'velocity':
+        bounds = [i * (1.0 / 8) for i in range(8 + 1)]
+        df_max = 180
+        df_min = -180
     ranges = [
         ((df_max - df_min) * i) + df_min
         for i in bounds

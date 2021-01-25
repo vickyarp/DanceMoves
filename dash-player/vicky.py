@@ -8,7 +8,7 @@ from interact_with_one_video import page_1_layout
 from visualquery import page_3_layout
 
 from app import app
-from clustering_new import get_dendogram
+from clustering_new import get_dendogram_angle, get_dendogram_velocity
 from dataset_info import txt2
 
 # Since we're adding callbaks to elements that don't exist in the app.layout,
@@ -64,7 +64,7 @@ index_page = html.Div([
     html.Br(),
     html.A(' Dataset', href='https://figshare.com/articles/dataset/H_Dance_Database/1453169', target='_blank' ,style={'fontSize': 26}),
     html.Br(),
-    dbc.Button("i", id="open-backdrop",size= 'lg',style={'font-weight': 'bold' }),
+    dbc.Button("Dataset Information ", id="open-backdrop",size= 'lg',style={'font-weight': 'bold' }),
     dbc.Modal(
             [
                 dbc.ModalHeader("Video namings"),
@@ -94,7 +94,7 @@ index_page = html.Div([
                 dbc.CardBody(
                     dcc.Graph(
                         id='graph-dendro',
-                        figure=get_dendogram(),
+                        figure=get_dendogram_angle(),
                         style={"display": "block", "margin-left": "auto", "margin-right": "auto"},
                     )
                 )
@@ -115,8 +115,10 @@ index_page = html.Div([
     html.P(u"\u00A9"+' Master Project of University of Zurich- Vasiliki Arpatzoglou & Artemis Kardara'
            , style={'text-align': 'center', 'fontSize': 16})
 
-], style={'textAlign': 'center','margin':'auto','width': "50%", 'background-image': 'url(https://img.freepik.com/free-vector/3d-perspective-style-diamond-shape-white-background_1017-27556.jpg?size=626&ext=jpg)'})
-
+], style={'textAlign': 'center','margin':'auto','width': "50%",
+          #'background-color': 'rgb(161,156,162)',
+            'background-image': 'linear-gradient(to top, #f3e7e9 0%, #e3eeff 99%, #e3eeff 100%)'})
+          #'background-image': 'url(https://img.freepik.com/free-vector/3d-perspective-style-diamond-shape-white-background_1017-27556.jpg?size=626&ext=jpg)'})
 
 @app.callback(
     Output("fade-transition", "is_in"),

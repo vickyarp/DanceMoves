@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from datatable import render_datatable
 from modal import modal
-from utils import COLORS, PAIRS_RENDER, DATASET_VIDEOS, BODYPART_THUMBS, POSES_DICT, BODYPART_INDEX_CANONICAL, update_selected_state, angles_to_ids, angle_ids_to_angles
+from utils import COLORS, PAIRS_RENDER, DATASET_VIDEOS, BODYPART_THUMBS, POSES_DICT, BODYPART_INDEX_CANONICAL, update_selected_state, angles_to_ids, angle_ids_to_angles, BODYPARTS_POINT
 from keypoint_frames import get_keypoints
 from keypoint_frames import create_df
 from overall_video_similarity import create_angles, overall_similarity
@@ -208,9 +208,7 @@ page_1_layout = html.Div([
     html.Br(),
     html.P(u"\u00A9" + ' Master Project of University of Zurich- Vasiliki Arpatzoglou & Artemis Kardara'
            , style={'text-align': 'center', 'fontSize': 16})
-], style={'background-image': 'url(https://img.freepik.com/free-vector/3d-perspective-style-diamond-shape-white-background_1017-27556.jpg?size=626&ext=jpg)'})
-
-
+], style={'background-image': 'linear-gradient(to top, #f3e7e9 0%, #e3eeff 99%, #e3eeff 100%)'})
 
 @app.callback([Output('memory-table_b', 'data'),
                Output('memory-output1_b', 'data'),
@@ -229,6 +227,7 @@ def get_dataframes(video_selected1):
     data = []
     for frame in keypoints1:
         df = create_coordinate_df(frame)
+        df.insert(0, 'points', BODYPARTS_POINT)
         data.append(df.to_json())
     return df_angles.to_json(), data, url1, duration
 
@@ -320,17 +319,25 @@ def render_content(tab, dft, df_angles, playing, gradient_scheme, frame_no, curr
                 html.H4('Frame #{}'.format(frame_no)),
                 dash_table.DataTable(
                     id='table-tab1_b',
-                    columns=[{"name": i, "id": i, 'type': 'numeric', 'format': Format(precision=2, scheme=Scheme.fixed),} for i in df.columns],
+                    columns=[{"name": i, "id": i, 'type': 'numeric', 'editable': (i == 'points'), 'format': Format(precision=2, scheme=Scheme.fixed),} for i in df.columns],
                     data=df.to_dict('records'),
                     style_header={
                         'backgroundColor': 'white',
                         'fontWeight': 'bold'
                     },
                     style_table={'overflowX': 'scroll'},
+                    style_data_conditional=[{
+                        'if': {'column_editable': True},
+                        'backgroundColor': colormaps[gradient_scheme][0],
+                        'fontWeight': 'bold',
+                        'color': 'black'
+                    }],
                     style_cell={
                         'backgroundColor': colormaps[gradient_scheme][2],
                         'color': 'black',
-                        'fontWeight': 'bold'
+                        'fontWeight': 'bold',
+                        'font-size': '17px',
+                        'text-align': 'center'
                     }
                 )
             ])]

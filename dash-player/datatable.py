@@ -13,13 +13,17 @@ from app import app
 import pandas as pd
 
 
-def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize='false', pagesize=10, dif_table='false', mode='', selected_rows=[], colormap=Blue):
+def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize='false', pagesize=10, dif_table='false', mode='', selected_rows=[], colormap=Blue, similarity='angle'):
     try:
         if not selected_rows: selected_rows = []
 
         # Apply table styles
-        (styles, legend) = heatmap_table_format(df_angles, selected_rows=selected_rows, colormap = colormap)
-        styles_header = []
+        if similarity == 'angle':
+            (styles, legend) = heatmap_table_format(df_angles, selected_rows=selected_rows, colormap = colormap)
+            styles_header = []
+        else:
+            (styles, legend) = heatmap_table_format(df_angles, selected_rows=selected_rows, colormap=colormap, similarity ='velocity')
+            styles_header = []
         if frame_no != 'false':
             styles_header, extra_styles = highlight_current_frame(frame_no)
             styles.append(extra_styles)
@@ -45,7 +49,7 @@ def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize=
                                 } for i in df_angles.iloc[:, 3:].columns],
                     data=df_angles.to_dict('records'),
                     fixed_columns={'headers': True, 'data': 1},
-                    style_data={'font-size': '10px', 'text-align': 'center'},
+                    style_data={'font-size': '10px', 'text-align': 'center','fontWeight': 'bold'},
                     style_table={'max-width': '100%', 'min-height': '80vh'},
                     style_data_conditional=styles,
                     tooltip_data=tooltip_angles(type='angles_small'),
@@ -141,13 +145,12 @@ def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize=
                     # data=df_angles.to_dict('records'),
                     data=custom_sort_by(selected_rows, df_angles.to_dict('records')),
                     fixed_columns={'headers': True, 'data': 1},
-                    style_data={'font-size': '18px', 'text-align': 'center',
-                                'p': {'margin-block-start': '0px', 'margin-block-end': '0px'}},
+                    style_cell={'font-size': '18px', 'text-align': 'center',
+                                'p': {'margin-block-start': '0px', 'margin-block-end': '0px'},'fontWeight': 'bold'},
                     style_table={'overflowX': 'scroll', 'max-width': '100%'},
                     style_header={
                         'fontWeight': 'bold'
                     },
-                    style_cell={},
                     row_selectable='multi',
                     selected_row_ids=selected_rows,
                     sort_action='custom',

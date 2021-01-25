@@ -339,7 +339,7 @@ def create_df(video, similarity = 'angle'):
         i=0
         for j in range(Z_angles.shape[1]):
             bodyvector = Z_angles[j]-Z_angles[j+1]
-            new_bodyvector=pd.DataFrame(bodyvector)
+            new_bodyvector =pd.DataFrame(bodyvector)
             newDF[i]=new_bodyvector
             i+=1
             if j == (Z_angles.shape[1] - 2) :

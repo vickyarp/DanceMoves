@@ -18,6 +18,9 @@ from keypoint_frames import get_keypoints
 from keypoint_frames import create_df
 from render_stick_figure import render_stick_figure
 from overall_video_similarity import create_angles, overall_similarity
+from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles, Blue, Sand, Else, Green
+
+colormaps = {'Blue': Blue, 'Sand': Sand , 'Else': Else, 'Green': Green}
 
 from app import app
 # # app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -182,9 +185,22 @@ similarity_layout = html.Div([
         children=[
             html.Div(style={'min-height': '70vh'}, children=[
                 dcc.Tabs(id='table-tabs', value='tab-1', children=[
-                    dcc.Tab(label='Angle Similarity', value='tab-2'),
-                    dcc.Tab(label='Velocity Similarity', value='tab-1')
+                    dcc.Tab(label='Angle Similarity', value='tab-2',id='tab-2'),
+                    dcc.Tab(label='Velocity Similarity', value='tab-1',id='tab-1')
                 ]),
+                dbc.Tooltip("Angle similarity is the similarity between angles of neighboring vectors (stick figures) ", target='tab-2',placement='bottom',style={'text-align': 'center', 'fontSize': 20}),
+                dbc.Tooltip("Velocity similarity is the similarity of the difference of angles of sequential frames for neighboring vectors (stick figures)", target='tab-1',placement='bottom',style={'text-align': 'center', 'fontSize': 20}),
+                dcc.RadioItems(
+                    id='gradient-scheme2',
+                    options=[
+                        {'label': 'Orange to Red', 'value': 'Else'},
+                        {'label': 'Sand', 'value': 'Sand'},
+                        {'label': 'Light Green to Blue', 'value': 'Blue'},
+                        {'label': 'Green', 'value': 'Green'}
+                    ],
+                    value='Blue',
+                    labelStyle={'float': 'right', 'display': 'inline-block', 'margin-right': 10, 'fontWeight': 'bold'}
+                ),
                 html.Div(id='tabs-content'),
             ]),
             dbc.Row([
@@ -431,21 +447,28 @@ def update_position(currentTime, value, duration, playing):
                Input('memory-table1', 'data'),
                Input('memory-table2', 'data'),
                Input('video-player', 'playing'),
+               Input('gradient-scheme2', 'value'),
                Input('memory-frame-no', 'data'),
                Input('selected-row-state', 'data'),
                Input('dtw-alignment', 'data')],
                State('video-player', 'currentTime'),
                )
-def render_content(tab, dft, df_angles, df2_angles, playing, frame_no, selected_rows, dtw_alignment, currentTime):
+def render_content(tab, dft, df_angles, df2_angles, playing, gradient_scheme2, frame_no, selected_rows, dtw_alignment, currentTime):
     try:
         df_angles = pd.read_json(df_angles)
         df2_angles = pd.read_json(df2_angles)
         print('frame: {}, dtw-alignment: {}'.format(frame_no, dtw_alignment[str(frame_no)]))
         # return render_datatable(df_angles, frame_no, selected_rows=selected_rows), modal(df_angles, frame_no),
-        return render_datatable(df_angles, frame_no, mode='pixel'), \
-               modal(df_angles, frame_no, index=1),\
-               render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel'), \
-               modal(df2_angles, frame_no, index=2)
+        if tab == 'tab-2':
+            return render_datatable(df_angles, frame_no, mode='pixel',colormap=colormaps[gradient_scheme2]), \
+                   modal(df_angles, frame_no, index=1),\
+                   render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel', colormap=colormaps[gradient_scheme2]), \
+                   modal(df2_angles, frame_no, index=2)
+        else:
+            return render_datatable(df_angles, frame_no, mode='pixel',similarity ='velocity', colormap=colormaps[gradient_scheme2]), \
+                   modal(df_angles, frame_no, index=1),\
+                   render_datatable(df2_angles, frame_no, dtw_alignment[str(frame_no)], mode='pixel', similarity='velocity',colormap=colormaps[gradient_scheme2]), \
+                   modal(df2_angles, frame_no, index=2)
     except:
         return dash.no_update
 

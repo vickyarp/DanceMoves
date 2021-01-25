@@ -33,7 +33,7 @@ def modal(df_angles, frame_no, index=1):
             dbc.Button("Table overview", id={'type': 'modal-button-open', 'index': index}),
             dbc.Modal(
                 [
-                    dbc.ModalHeader("Motion Rug (Video #1)"),
+                    dbc.ModalHeader("Motion Rug"),
                     dbc.ModalBody(render_datatable(df_angles, frame_no, fullsize='true')),
                     dbc.ModalFooter(
                         dbc.Button(
