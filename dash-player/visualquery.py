@@ -17,6 +17,7 @@ from secondPage import secondPage
 DURATION = 4.105
 
 page_3_layout = html.Div([
+    html.Img(src=app.get_asset_url('logo.png'), style={'width': '300px', 'position': 'fixed','top': '-85px','left': '-40px'}),
     html.H1('Visual query', style={'text-align': 'center'}),
     html.Br(),
     html.Div([
@@ -131,4 +132,4 @@ page_3_layout = html.Div([
     html.Br(),
     html.P(u"\u00A9" + ' Master Project of University of Zurich- Vasiliki Arpatzoglou & Artemis Kardara'
            , style={'text-align': 'center', 'fontSize': 16})
-])
+],style={'background-image': 'url("/assets/background2.png")'})

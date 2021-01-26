@@ -46,9 +46,10 @@ def create_coordinate_df(points_with_confidence):
 
 
 page_1_layout = html.Div([
+    html.Img(src=app.get_asset_url('logo.png'), style={'width': '300px', 'position': 'fixed','top': '-85px','left': '-40px'}),
     dcc.Location(id='url', refresh=False, pathname='/page-1'),
     html.H1('Interact with one video', style={'text-align': 'center'}),
-    html.Br(),
+    #html.Br(),
     html.Div(
         [
             dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
@@ -208,7 +209,7 @@ page_1_layout = html.Div([
     html.Br(),
     html.P(u"\u00A9" + ' Master Project of University of Zurich- Vasiliki Arpatzoglou & Artemis Kardara'
            , style={'text-align': 'center', 'fontSize': 16})
-], style={'background-image': 'linear-gradient(to top, #f3e7e9 0%, #e3eeff 99%, #e3eeff 100%)'})
+], style={'background-image': 'url("/assets/background2.png")'})
 
 @app.callback([Output('memory-table_b', 'data'),
                Output('memory-output1_b', 'data'),

@@ -30,6 +30,7 @@ app.layout = html.Div([
 
 index_page = html.Div([
     html.H1('Visual Analysis of Dance Moves', style={'text-align': 'center'}),
+    html.Img(src=app.get_asset_url('logo.png'), style={'width':328}),
     html.P('The goal of this project is to build a tool for the visual analysis of dance moves.', style={'text-align': 'center','fontSize': 26}),
     html.Hr(className="my-2"),
     html.Br(),
@@ -110,14 +111,14 @@ index_page = html.Div([
 
 
     # INSERT IMAGE
-    # html.Img(src=app.get_asset_url('Output_Skeleton_ballerina.jpg'),style={'width':328, 'height':328}),
     html.Br(),
     html.P(u"\u00A9"+' Master Project of University of Zurich- Vasiliki Arpatzoglou & Artemis Kardara'
            , style={'text-align': 'center', 'fontSize': 16})
 
 ], style={'textAlign': 'center','margin':'auto','width': "50%",
           #'background-color': 'rgb(161,156,162)',
-            'background-image': 'linear-gradient(to top, #f3e7e9 0%, #e3eeff 99%, #e3eeff 100%)'})
+            #'background-image': 'linear-gradient(to top, #f3e7e9 0%, #e3eeff 99%, #e3eeff 100%)'})
+            'background-image': 'url("/assets/background2.png")'})
           #'background-image': 'url(https://img.freepik.com/free-vector/3d-perspective-style-diamond-shape-white-background_1017-27556.jpg?size=626&ext=jpg)'})
 
 @app.callback(
@@ -169,4 +170,5 @@ def toggle_modal(n1, n2, is_open):
 
 
 if __name__ == '__main__':
+    #app.run_server(debug=True,port=8888)
     app.run_server(debug=True)
