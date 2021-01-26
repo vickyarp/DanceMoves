@@ -63,7 +63,7 @@ def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize=
         if mode == 'pixel':
             # df_angles.insert(0, 'angles_tiny', BODYPART_THUMBS_TINY, True)
             return html.Div([
-                render_frame_header(frame_no),
+                render_frame_header(frame_no, aligned_frame_no),
                 html.Div(legend, style={'float': 'right'}),
                 dash_table.DataTable(
                     id='pixel-table-1',
@@ -167,8 +167,16 @@ def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize=
         return dash.no_update
 
 
-def render_frame_header(frame_no):
-    if frame_no != 'false': return html.H4('Current Frame: #{}'.format(frame_no), style={'marginTop': '1%'})
+def render_frame_header(frame_no, aligned_frame_no=[]):
+    if frame_no != 'false' and not aligned_frame_no:
+        return html.H4('Current Frame: #{}'.format(frame_no), style={'marginTop': '1%'})
+    elif frame_no != 'false' and aligned_frame_no:
+        element = html.Div([
+            html.H4('Current Frame: #{}'.format(frame_no), style={'marginTop': '1%', 'display': 'inline'}),
+            html.H4('Aligned Frame: {}'.format(aligned_frame_no), style={'marginTop': '1%', 'marginLeft': '4%','display': 'inline', 'color': 'red'})
+            ])
+        return element
+
     else: return html.H4()
 
 def render_similarity_row(df_similarity):

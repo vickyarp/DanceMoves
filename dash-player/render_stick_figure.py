@@ -77,7 +77,7 @@ def render_stick_figure_init(df):
 
     return fig
 
-def render_stick_figure(df, video):
+def render_stick_figure(df, video, no_highlight=False):
     # teams_list = sorted(teams_list, key=str.lower)
     default_linewidth = 2
     highlighted_linewidth = 3
@@ -116,6 +116,8 @@ def render_stick_figure(df, video):
     )
 
     for body_segment, color in zip(BODY_SEGMENTS.items(), COLORS):
+        h_color = color if no_highlight else 'gray'
+        opacity = 1 if no_highlight else 0.6
         coords = body_segment[1]
         name = body_segment[0]
         x = df.x[coords]
@@ -127,10 +129,10 @@ def render_stick_figure(df, video):
                                  name=name,
                                  mode='lines+markers',
                                  # text=z,
-                                 opacity=0.6,
+                                 opacity=opacity,
                                  hoveron='points+fills',
                                  fill='toself',
-                                 line={'width': 4, 'color': 'gray'},
+                                 line={'width': 4, 'color': h_color},
                                  marker=dict(size=10, color=color),
                                  ))
     # fig.update_layout(
@@ -146,7 +148,6 @@ def render_stick_figure(df, video):
 
     # our custom event handler
     def update_trace(trace, points, selector):
-        print('we are in')
         print('points: {}'.format(points))
         if len(points.point_inds) == 1:
             print('here?')

@@ -27,7 +27,7 @@ from datatable import render_datatable
 from dash.dependencies import Input, Output, State, MATCH
 from app import app
 
-def modal(df_angles, frame_no, index=1):
+def modal(df_angles, frame_no, dtw_alignment=[], index=1):
     return html.Div(
         [
             dbc.Button("Table overview", id={'type': 'modal-button-open', 'index': index}),
