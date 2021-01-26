@@ -17,11 +17,11 @@ from secondPage import secondPage
 DURATION = 4.105
 
 page_3_layout = html.Div([
-    html.Img(src=app.get_asset_url('logo.png'), style={'width': '300px', 'position': 'fixed','top': '-85px','left': '-40px'}),
+    html.A(html.Img(src=app.get_asset_url('logo.png'), style={'width': '300px', 'position': 'fixed','top': '-85px','left': '-40px'}), href="/"),
+    dcc.Location(id='url', refresh=False, pathname='/page-3'),
     html.H1('Visual query', style={'text-align': 'center'}),
     html.Br(),
     html.Div([
-        dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
         dcc.Link(dbc.Button('Interact with one video', size="lg"), href="/page-1"),
         dcc.Link(dbc.Button('Interact with two videos and find similarity', size="lg"), href="/page-2"),
 
@@ -48,7 +48,7 @@ page_3_layout = html.Div([
                         dcc.Dropdown(
                             id='memory-video1_b',
                             options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
-                            value='BA_R_WA'
+                            value='LU_S_big'
                         ),
 
                         dash_player.DashPlayer(
@@ -113,7 +113,7 @@ page_3_layout = html.Div([
                     dcc.Graph(
                         id='graph-im1_b',
                         figure=go.Figure(),
-                        style={'height': '50vh'}
+                        # style={'height': '50vh'}
                     ),
                 ],
                 className="mb-3",),

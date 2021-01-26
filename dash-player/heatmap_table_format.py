@@ -1,58 +1,95 @@
 import dash_html_components as html
 from utils import BODYPART_INDEX
 import plotly.express as px
+COLOR_DICT_4 = {
+    'Sand' : [
+        '#fbefcc',
+        '#f9ccac',
+        '#f4a688',
+        '#e0876a',
+        # '#f6e8c3',
+        # '#dfc27d',
+        # '#bf812d',
+        # '#8c510a',
+    ],
 
-Sand = [
-    '#fbefcc',
-    '#f9ccac',
-    '#f4a688',
-    '#e0876a',
-    '#ddeedd',
-    '#bae4bc',
-    '#7bccc4',
-    '#2b8cbe',
-]
+    'Else' : [
+        '#fef0d9',
+        '#fdcc8a',
+        '#fc8d59',
+        '#d7301f',
+        # '#f6e8c3',
+        # '#dfc27d',
+        # '#bf812d',
+        # '#8c510a',
+    ],
 
-Else = [
-    '#fef0d9',
-    '#fdcc8a',
-    '#fc8d59',
-    '#d7301f',
-    '#ddeedd',
-    '#bae4bc',
-    '#7bccc4',
-    '#2b8cbe',
-]
+    'Blue' : [
+        '#ddeedd',
+        '#bae4bc',
+        '#7bccc4',
+        '#2b8cbe',
+    ],
+
+    'Green' : [
+        '#edf8fb',
+        '#b2e2e2',
+        '#66c2a4',
+        '#238b45',
+    ]
+}
+
+COLOR_DICT_8 = {
+    'Sand': [
+        '#8c510a',
+        '#bf812d',
+        '#dfc27d',
+        '#f6e8c3',
+        '#fbefcc',
+        '#f9ccac',
+        '#f4a688',
+        '#e0876a',
+    ],
+
+    'Else': [
+        '#8c510a',
+        '#bf812d',
+        '#dfc27d',
+        '#f6e8c3',
+        '#fef0d9',
+        '#fdcc8a',
+        '#fc8d59',
+        '#d7301f',
+    ],
+
+    'Blue': [
+        '#8c510a',
+        '#bf812d',
+        '#dfc27d',
+        '#f6e8c3',
+        '#ddeedd',
+        '#bae4bc',
+        '#7bccc4',
+        '#2b8cbe',
+    ],
+
+    'Green': [
+        '#8c510a',
+        '#bf812d',
+        '#dfc27d',
+        '#f6e8c3',
+        '#edf8fb',
+        '#b2e2e2',
+        '#66c2a4',
+        '#238b45',
+    ]
+}
 
 
-Blue = [
-    '#ddeedd',
-    '#bae4bc',
-    '#7bccc4',
-    '#2b8cbe',
-    '#fef0d9',
-    '#fdcc8a',
-    '#fc8d59',
-    '#d7301f',
-]
 
-Green = [
-    '#edf8fb',
-    '#b2e2e2',
-    '#66c2a4',
-    '#238b45',
-    '#ddeedd',
-    '#bae4bc',
-    '#7bccc4',
-    '#2b8cbe',
-]
+def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[], colormap = 'Else', similarity = 'angle'):
 
-
-
-
-def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[], colormap = Blue, similarity = 'angle'):
-
-
+    colormap = COLOR_DICT_8[colormap] if similarity == 'velocity' else COLOR_DICT_4[colormap]
     bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
     if columns == 'all':
         if 'id' in df:
@@ -94,12 +131,21 @@ def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[], colormap
                 'backgroundColor': backgroundColor,
                 'color': color,
             })
+            # styles.append({
+            #     'if': {
+            #         'filter_query': (
+            #                 '{{{column}}} == 0'
+            #         ).format(column=column),
+            #         'column_id': column
+            #     },
+            #     'backgroundColor': 'white',
+            #     'color': color,
+            # })
         for row in selected_rows:
             styles.append({
                 'if': {
                     'column_id': 'angles',
                     'filter_query': '{{id}} = {}'.format(str(row)),
-
                 },
                 'border': '4px rgb(50, 50, 50) solid'
             })

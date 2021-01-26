@@ -1,6 +1,7 @@
 import os
 import json
 import cv2
+import math
 json.encoder.FLOAT_REPR = lambda o: format(o, '.3f')
 import numpy as np
 import pandas as pd
@@ -324,6 +325,145 @@ def create_df(video, similarity = 'angle'):
                                     angle_torso_to_left_hip])
             return body_vector
 
+
+        ############################################################ tTESSST ###########################################################
+        def getAngle(a, b, c):
+            ang = math.degrees(math.atan2(c[1] - b[1], c[0] - b[0]) - math.atan2(a[1] - b[1], a[0] - b[0]))
+            return ang + 360 if ang < 0 else ang
+
+        def compute_angle_vector_new(data):
+            x = create_x_coordicate(data)
+            y = create_y_coordicate(data)
+            nose = (x[0], y[0])
+            neck = (x[1], y[1])
+            right_shoulder = (x[2], y[2])
+            right_elbow = (x[3], y[3])
+            right_wrist = (x[4], y[4])
+            left_shoulder = (x[5], y[5])
+            left_elbow = (x[6], y[6])
+            left_wrist = (x[7], y[7])
+            MidHip = (x[8], y[8])
+            right_hip = (x[9], y[9])
+            right_knee = (x[10], y[10])
+            right_ankle = (x[11], y[11])
+            left_hip = (x[12], y[12])
+            left_knee = (x[13], y[13])
+            left_ankle = (x[14], y[14])
+            right_eye = (x[15], y[15])
+            left_eye = (x[16], y[16])
+            right_ear = (x[17], y[17])
+            left_ear = (x[18], y[18])
+            left_big_toe = (x[19], y[19])
+            left_small_toe = (x[20], y[20])
+            left_heel = (x[21], y[21])
+            right_big_toe = (x[22], y[22])
+            right_small_toe = (x[23], y[23])
+            right_heel = (x[24], y[24])
+
+
+            # angle_nose_to_neck_to_left_shoulder = compute_angle(nose_to_neck, left_shoulder)
+            angle_nose_to_neck_to_left_shoulder = getAngle(nose, neck, left_shoulder)
+
+            # angle_nose_to_neck_to_right_shoulder = compute_angle(nose_to_neck, right_shoulder)
+            angle_nose_to_neck_to_right_shoulder = getAngle(nose, neck, right_shoulder)
+
+            # angle_left_shoulder_to_right_shoulder = compute_angle(left_shoulder, right_shoulder)
+            angle_left_shoulder_to_right_shoulder = getAngle(left_shoulder, neck, right_shoulder)
+
+            angle_left_shoulder_to_left_upper_arm = getAngle(neck, left_shoulder, left_elbow)
+
+            # left_lower_arm = (x[6] - x[7]), (y[6] - y[7])
+            angle_left_lower_arm_to_left_upper_arm = compute_angle(left_shoulder, left_elbow, left_wrist)
+
+            # right_upper_arm = (x[2] - x[3]), (y[2] - y[3])
+            angle_right_upper_arm_to_right_shoulder = compute_angle(neck, right_shoulder, right_elbow)
+
+            # right_lower_arm = (x[3] - x[4]), (y[3] - y[4])
+            angle_right_upper_arm_to_right_lower_arm = compute_angle(right_shoulder, right_elbow, right_wrist)
+
+            # left_eye_to_nose = (x[0] - x[16]), (y[0] - y[16])
+            # left_ear_to_eye = (x[16] - x[18]), (y[16] - y[18])
+
+            angle_left_eye_to_nose_to_left_ear_to_eye = compute_angle(nose, left_eye, left_ear)
+
+            angle_left_eye_to_nose_to_neck = compute_angle(left_eye, nose, neck)
+
+            # right_eye_to_nose = (x[0] - x[15]), (y[0] - y[15])
+            # right_ear_to_eye = (x[15] - x[17]), (y[15] - y[17])
+
+            angle_nose_to_neck_to_right_eye_to_nose = compute_angle(right_eye, nose, neck)
+            angle_left_eye_to_nose_to_rigt_ear_to_eye = compute_angle(left_eye_to_nose, right_ear_to_eye)
+
+            angle_right_eye_to_nose_to_right_ear_to_eye = compute_angle(right_eye_to_nose, right_ear_to_eye)
+
+            right_hip = (x[8] - x[9]), (y[8] - y[9])
+            right_upper_leg = (x[9] - x[10]), (y[9] - y[10])
+
+            angle_right_hip_to_right_upper_leg = compute_angle(right_hip, right_upper_leg)
+
+            right_lower_leg = (x[10] - x[11]), (y[10] - y[11])
+
+            angle_right_upper_leg_to_right_lower_leg = compute_angle(right_upper_leg, right_lower_leg)
+
+            left_hip = (x[8] - x[12]), (y[8] - y[12])
+            left_upper_leg = (x[12] - x[13]), (y[12] - y[13])
+
+            angle_left_hip_to_left_upper_leg = compute_angle(left_hip, left_upper_leg)
+
+            left_lower_leg = (x[13] - x[14]), (y[13] - y[14])
+
+            angle_left_upper_leg_to_left_lower_leg = compute_angle(left_upper_leg, left_lower_leg)
+
+            left_ankle_to_heel = (x[14] - x[21]), (y[14] - y[21])
+
+            angle_left_lower_leg_left_ankle_to_heel = compute_angle(left_lower_leg, left_ankle_to_heel)
+
+            right_ankle_to_heel = (x[11] - x[24]), (y[11] - y[24])
+
+            angle_right_lower_leg_to_right_ankle_to_heel = compute_angle(right_lower_leg, right_ankle_to_heel)
+
+            right_toes = (x[22] - x[23]), (y[22] - y[23])
+            right_foot = (x[11] - x[22]), (y[11] - y[22])
+
+            angle_right_foot_to_right_toes = compute_angle(right_foot, right_toes)
+            angle_right_foot_to_right_lower_leg = compute_angle(right_foot, right_lower_leg)
+            angle_right_foot_to_right_ankle_to_heel = compute_angle(right_foot, right_ankle_to_heel)
+
+            left_foot = (x[14] - x[19]), (y[14] - y[19])
+            left_toes = (x[19] - x[20]), (y[19] - y[20])
+
+            angle_left_foot_to_left_lower_leg = compute_angle(left_foot, left_lower_leg)
+            angle_left_foot_to_left_ankle_to_heel = compute_angle(left_foot, left_ankle_to_heel)
+            angle_left_foot_to_left_toes = compute_angle(left_foot, left_toes)
+
+            torso = (x[1] - x[8]), (y[1] - y[8])
+
+            angle_torso_to_right_shoulder = compute_angle(torso, right_shoulder)
+            angle_torso_to_left_shoulder = compute_angle(torso, left_shoulder)
+            angle_torso_to_nose_to_neck = compute_angle(torso, nose_to_neck)
+
+            angle_torso_to_right_hip = compute_angle(torso, right_hip)
+            angle_torso_to_left_hip = compute_angle(torso, left_hip)
+
+            body_vector = np.array([angle_nose_to_neck_to_left_shoulder, angle_nose_to_neck_to_right_shoulder,
+                                    angle_left_shoulder_to_right_shoulder, angle_left_shoulder_to_left_upper_arm,
+                                    angle_left_lower_arm_to_left_upper_arm, angle_right_upper_arm_to_right_shoulder,
+                                    angle_right_upper_arm_to_right_lower_arm, angle_left_eye_to_nose_to_left_ear_to_eye,
+                                    angle_left_eye_to_nose_to_neck, angle_nose_to_neck_to_right_eye_to_nose,
+                                    angle_left_eye_to_nose_to_rigt_ear_to_eye,
+                                    angle_right_eye_to_nose_to_right_ear_to_eye, angle_right_hip_to_right_upper_leg,
+                                    angle_right_upper_leg_to_right_lower_leg, angle_left_hip_to_left_upper_leg,
+                                    angle_left_upper_leg_to_left_lower_leg, angle_left_lower_leg_left_ankle_to_heel,
+                                    angle_right_lower_leg_to_right_ankle_to_heel, angle_right_foot_to_right_toes,
+                                    angle_right_foot_to_right_lower_leg, angle_right_foot_to_right_ankle_to_heel,
+                                    angle_left_foot_to_left_lower_leg, angle_left_foot_to_left_ankle_to_heel,
+                                    angle_left_foot_to_left_toes, angle_torso_to_right_shoulder,
+                                    angle_torso_to_left_shoulder, angle_torso_to_nose_to_neck, angle_torso_to_right_hip,
+                                    angle_torso_to_left_hip])
+            return body_vector
+
+        ################################# END TEST
+
         bodyvector1 = compute_angle_vector(data)
         new_bodyvector = pd.DataFrame(bodyvector1)
 
@@ -359,6 +499,10 @@ def create_df(video, similarity = 'angle'):
     return newDF.reset_index()
 
 
+
+
+
+# newDF = newDF.fillna(0)
 
 if __name__ == '__main__':
     DATA_PATH = 'assets/keypoints'

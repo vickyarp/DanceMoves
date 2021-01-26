@@ -5,7 +5,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
 from utils import BODYPART_THUMBS_SMALL, BODYPART_THUMBS_TINY
-from heatmap_table_format import heatmap_table_format, highlight_current_frame, highlight_aligned_frame, tooltip_angles, Blue, Sand, Else, Green
+from heatmap_table_format import heatmap_table_format, highlight_current_frame, highlight_aligned_frame, tooltip_angles
 from utils import BODYPART_THUMBS_SMALL
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
@@ -13,7 +13,7 @@ from app import app
 import pandas as pd
 
 
-def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize='false', pagesize=10, dif_table='false', mode='', selected_rows=[], colormap=Blue, similarity='angle'):
+def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize='false', pagesize=10, dif_table='false', mode='', selected_rows=[], colormap='Else', similarity='angle'):
     try:
         if not selected_rows: selected_rows = []
 
@@ -114,6 +114,7 @@ def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize=
                                     'format': Format(precision=0, scheme=Scheme.fixed),
                                 } for i in df_angles.iloc[:, 2:].columns],
                     data=df_angles.to_dict('records'),
+                    selected_row_ids=selected_rows,
                     fixed_columns={'headers': True, 'data': 2},
                     style_data={'font-size': '18px', 'text-align': 'center',
                                 'p': {'margin-block-start': '0px', 'margin-block-end': '0px'}},

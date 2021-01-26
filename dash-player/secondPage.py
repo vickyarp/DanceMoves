@@ -30,6 +30,7 @@ def secondPage():
                     'width': '15%',
                     'float': 'left',
                     'margin': 0,
+                    'max-height': '80vh',
                 },
                 children=[
                     # pose_card('TB_S_FB_frame43.png', key='qsearch-1'),
@@ -85,11 +86,12 @@ def pose_card(img, key, title="Pose"):
 
 @app.callback(Output('dif-table', 'children'),
               [Input('memory-video1_b', 'value'),
+               Input('memory-frame_b', 'data'),
                Input('qsearch-1', 'n_clicks'),
                Input('qsearch-2', 'n_clicks'),
                Input('qsearch-3', 'n_clicks')],
               )
-def render_dif_table(value, click1, click2, click3):
+def render_dif_table(value, frame_no, click1, click2, click3):
     # if not click1 or not click2 or not click3 or not value:
     #     return dash.no_update
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
@@ -104,4 +106,4 @@ def render_dif_table(value, click1, click2, click3):
 
     df_angles_dif = pose_query(value, pose)
     df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
-    return render_datatable(df_angles_dif, pagesize=12, dif_table='true',similarity='velocity')
+    return render_datatable(df_angles_dif, pagesize=13, frame_no=frame_no, dif_table='true', similarity='velocity')
