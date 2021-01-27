@@ -9,7 +9,7 @@ GROUPBY_SELECTION = {
                 'left_eye_to_nose_to_left_ear_to_eye',
                 'left_eye_to_nose_to_neck',
                 'nose_to_neck_to_right_eye_to_nose',
-                'left_eye_to_nose_to_right_ear_to_eye',
+                'left_eye_to_nose_to_right_eye_to_nose',
                 'right_eye_to_nose_to_right_ear_to_eye',
             ],'bodyparts': []
 

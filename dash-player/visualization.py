@@ -484,9 +484,9 @@ def render_content(tab, df_angles, df2_angles, gradient_scheme2, frame_no, frame
             df_angles = pd.read_json(df_angles)
             df2_angles = pd.read_json(df2_angles)
             return render_datatable(df_angles, frame_no, mode='pixel',similarity ='velocity', colormap=colormaps[gradient_scheme2]), \
-                   modal(df_angles, frame_no, index=1),\
+                   modal(df_angles, frame_no, index=1,similarity='velocity'),\
                    render_datatable(df2_angles, frame_no2, dtw_alignment[str(frame_no)], mode='pixel', similarity='velocity',colormap=colormaps[gradient_scheme2]), \
-                   modal(df2_angles, frame_no2, dtw_alignment[str(frame_no)], index=2)
+                   modal(df2_angles, frame_no2, dtw_alignment[str(frame_no)], index=2, similarity='velocity')
         else:
             return dash.no_update
     except Exception as e:

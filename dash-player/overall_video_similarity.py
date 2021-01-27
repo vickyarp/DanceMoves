@@ -205,7 +205,7 @@ def compute_angle_vector(data, type):
     right_ear_to_eye = (x[15] - x[17]), (y[15] - y[17])
 
     angle_nose_to_neck_to_right_eye_to_nose = compute_angle(nose_to_neck, right_eye_to_nose, type)
-    angle_left_eye_to_nose_to_rigt_ear_to_eye = compute_angle(left_eye_to_nose, right_ear_to_eye, type)
+    angle_left_eye_to_nose_to_right_eye_to_nose = compute_angle(left_eye_to_nose, right_eye_to_nose, type)
 
     angle_right_eye_to_nose_to_right_ear_to_eye = compute_angle(right_eye_to_nose, right_ear_to_eye, type)
 
@@ -263,7 +263,7 @@ def compute_angle_vector(data, type):
                             angle_left_lower_arm_to_left_upper_arm, angle_right_upper_arm_to_right_shoulder,
                             angle_right_upper_arm_to_right_lower_arm, angle_left_eye_to_nose_to_left_ear_to_eye,
                             angle_left_eye_to_nose_to_neck, angle_nose_to_neck_to_right_eye_to_nose,
-                            angle_left_eye_to_nose_to_rigt_ear_to_eye, angle_right_eye_to_nose_to_right_ear_to_eye,
+                            angle_left_eye_to_nose_to_right_eye_to_nose, angle_right_eye_to_nose_to_right_ear_to_eye,
                             angle_right_hip_to_right_upper_leg, angle_right_upper_leg_to_right_lower_leg,
                             angle_left_hip_to_left_upper_leg, angle_left_upper_leg_to_left_lower_leg,
                             angle_left_lower_leg_left_ankle_to_heel, angle_right_lower_leg_to_right_ankle_to_heel,
@@ -279,7 +279,7 @@ def create_velocity_df(Z_angles):
     newDF = pd.DataFrame(index=range(29),columns=range(Z_angles.shape[1]-1))
     i=0
     for j in range(Z_angles.shape[1]):
-        bodyvector = Z_angles[j]-Z_angles[j+1]
+        bodyvector = Z_angles[j+1]-Z_angles[j]
         new_bodyvector=pd.DataFrame(bodyvector)
         newDF[i]=new_bodyvector
         i+=1

@@ -104,4 +104,4 @@ def render_dif_table(value, click1, click2, click3):
 
     df_angles_dif = pose_query(value, pose)
     df_angles_dif.insert(0, 'angles', BODYPART_THUMBS, True)
-    return render_datatable(df_angles_dif, pagesize=12, dif_table='true')
+    return render_datatable(df_angles_dif, pagesize=12, dif_table='true',similarity='velocity')

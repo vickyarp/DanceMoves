@@ -99,6 +99,7 @@ def render_datatable(df_angles, frame_no='false', aligned_frame_no=[], fullsize=
             ])
         # Difference table case
         elif dif_table == 'true':
+            styles_header = []
             return html.Div([
                 render_frame_header(frame_no),
                 html.Div(legend, style={'float': 'right'}),
