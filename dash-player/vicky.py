@@ -2,7 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, MATCH, ALL
 from visualization import similarity_layout
 from interact_with_one_video import page_1_layout
 from visualquery import page_3_layout
@@ -88,14 +88,16 @@ index_page = html.Div([
     html.Div(
     [
         dbc.Button(
-            "Hierarchival clustering", id="fade-transition-button", className="mb-3"
+            "Hierarchical clustering", id={"type": "fade-transition-button", "index": 1}, className="mb-3", style={'margin-right': '10px'}, n_clicks_timestamp=0,
+        ),
+        dbc.Button(
+            "Hierarchical clustering", id={"type": "fade-transition-button", "index": 2}, className="mb-3", style={'margin-right': '10px'}, n_clicks_timestamp=0
         ),
         dbc.Fade(
             dbc.Card(
                 dbc.CardBody(
                     dcc.Graph(
-                        id='graph-dendro',
-                        figure=get_dendogram_angle(),
+                        id="graph-dendro",
                         style={"display": "block", "margin-left": "auto", "margin-right": "auto"},
                     )
                 )
@@ -122,16 +124,24 @@ index_page = html.Div([
           #'background-image': 'url(https://img.freepik.com/free-vector/3d-perspective-style-diamond-shape-white-background_1017-27556.jpg?size=626&ext=jpg)'})
 
 @app.callback(
-    Output("fade-transition", "is_in"),
-    [Input("fade-transition-button", "n_clicks")],
-    [State("fade-transition", "is_in")],
-)
-def toggle_fade(n, is_in):
-    if not n:
-        # Button has never been clicked
-        return False
-    return not is_in
-
+    [Output("fade-transition", "is_in"),
+     Output("graph-dendro", "figure")],
+    Input({"type": "fade-transition-button", "index":ALL}, "n_clicks_timestamp"),
+    State("fade-transition", "is_in"))
+def toggle_fade(n1, is_in):
+    print('MODAL')
+    try:
+        if not n1:
+            return False, dash.no_update
+        elif n1[0] > n1[1]:
+            fig = get_dendogram_angle()
+            return not is_in, fig
+        elif n1[0] < n1[1]:
+            fig = get_dendogram_velocity()
+            return not is_in, fig
+    except Exception as e:
+        print(e)
+    return dash.no_update, dash.no_update
 
 # Update the index
 @app.callback(Output('page-content', 'children'),

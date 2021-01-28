@@ -18,7 +18,7 @@ from keypoint_frames import get_keypoints
 from keypoint_frames import create_df
 from overall_video_similarity import create_angles, overall_similarity
 from render_stick_figure import render_stick_figure
-from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles, Blue, Sand, Else, Green
+from heatmap_table_format import COLOR_DICT_4, heatmap_table_format, highlight_current_frame, tooltip_angles
 from buttongroup import buttongroup, GROUPBY_SELECTION
 
 
@@ -26,7 +26,6 @@ from buttongroup import buttongroup, GROUPBY_SELECTION
 
 from app import app
 DURATION = 4.105
-colormaps = {'Blue': Blue, 'Sand': Sand , 'Else': Else, 'Green': Green}
 
 
 def get_coordinates(points_with_confidence):
@@ -46,13 +45,12 @@ def create_coordinate_df(points_with_confidence):
 
 
 page_1_layout = html.Div([
-    html.Img(src=app.get_asset_url('logo.png'), style={'width': '300px', 'position': 'fixed','top': '-85px','left': '-40px'}),
+    html.A(html.Img(src=app.get_asset_url('logo.png'), style={'width': '300px', 'position': 'fixed','top': '-85px','left': '-40px'}), href="/"),
     dcc.Location(id='url', refresh=False, pathname='/page-1'),
-    html.H1('Interact with one video', style={'text-align': 'center'}),
+    html.H1('Interact with one video', style={'text-align': 'center', 'padding-top': '3rem', 'margin-bottom': '3rem'}),
     #html.Br(),
     html.Div(
         [
-            dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
             dcc.Link(dbc.Button('Interact with two videos and find similarity', size="lg"), href="/page-2"),
             dcc.Link(dbc.Button('Interact with visual query', size="lg"), href="/page-3"),
         ],
@@ -63,7 +61,7 @@ page_1_layout = html.Div([
             style={
                 'width': '20%',
                 'float': 'left',
-                'margin': '1% 2% 2% 1%'
+                'margin': '14rem 2% 2% 1%'
             },
             children=[
                 dcc.Store(id='memory-output1_b'),
@@ -188,7 +186,7 @@ page_1_layout = html.Div([
                 'width': '20%',
                 'float': 'right',
                 #'margin': '-1% 0% 0% 0%'
-                'margin': '1% 2% 2% 1%'
+                'margin': '12.7rem 2% 2% 1%'
 
             },
             children=[
@@ -196,7 +194,8 @@ page_1_layout = html.Div([
                 dcc.Graph(
                     id='graph-im1_b',
                     figure=go.Figure(),
-                    style={'height': '50vh'}
+                    style={'height': '50vh'},
+                    # config={'edits': {'legendPosition': True}}
                 ),
                 html.Div(
                     children=[dbc.Button("Update", id="update-selection_b", n_clicks=0, style={'margin': '5px'}),
@@ -329,12 +328,12 @@ def render_content(tab, dft, df_angles, playing, gradient_scheme, frame_no, curr
                     style_table={'overflowX': 'scroll'},
                     style_data_conditional=[{
                         'if': {'column_editable': True},
-                        'backgroundColor': colormaps[gradient_scheme][0],
+                        'backgroundColor': COLOR_DICT_4[gradient_scheme][0],
                         'fontWeight': 'bold',
                         'color': 'black'
                     }],
                     style_cell={
-                        'backgroundColor': colormaps[gradient_scheme][2],
+                        'backgroundColor': COLOR_DICT_4[gradient_scheme][2],
                         'color': 'black',
                         'fontWeight': 'bold',
                         'font-size': '17px',
@@ -352,7 +351,7 @@ def render_content(tab, dft, df_angles, playing, gradient_scheme, frame_no, curr
             #     colormap = Else
 
             selected_rows = angles_to_ids(selected_rows_state['angles'])
-            return render_datatable(df_angles, frame_no, selected_rows=selected_rows, colormap=colormaps[gradient_scheme]), modal(df_angles, frame_no)
+            return render_datatable(df_angles, frame_no, selected_rows=selected_rows, colormap=gradient_scheme), modal(df_angles, frame_no)
 
     except:
         return dash.no_update

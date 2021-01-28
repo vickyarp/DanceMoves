@@ -18,9 +18,8 @@ from keypoint_frames import get_keypoints
 from keypoint_frames import create_df
 from render_stick_figure import render_stick_figure
 from overall_video_similarity import create_angles, overall_similarity
-from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles, Blue, Sand, Else, Green
+from heatmap_table_format import heatmap_table_format, highlight_current_frame, tooltip_angles
 
-colormaps = {'Blue': Blue, 'Sand': Sand , 'Else': Else, 'Green': Green}
 
 from app import app
 # # app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -42,10 +41,11 @@ def create_coordinate_df(points_with_confidence):
     return df
 
 similarity_layout = html.Div([
+    html.A(html.Img(src=app.get_asset_url('logo.png'), style={'width': '300px', 'position': 'fixed','top': '-85px','left': '-40px'}), href="/"),
+    dcc.Location(id='url', refresh=False, pathname='/page-2'),
     html.H2('Visual Analysis of Dance Moves', style={'text-align': 'center'}),
     html.Br(),
     html.Div([
-        dcc.Link(dbc.Button('Go back to home page', size="lg"), href="/"),
         dcc.Link(dbc.Button('Interact with one video', size="lg"), href="/page-1"),
         dcc.Link(dbc.Button('Interact with visual query', size="lg"), href="/page-3"),
 
@@ -89,7 +89,7 @@ similarity_layout = html.Div([
                     dcc.Dropdown(
                         id='memory-video1',
                         options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
-                        value='BA_R_WA'
+                        value='TOS_S'
                     ),
 
                     dash_player.DashPlayer(
@@ -156,7 +156,7 @@ similarity_layout = html.Div([
                     dcc.Dropdown(
                         id='memory-video2',
                         options=[{'value': x, 'label': x} for x in DATASET_VIDEOS],
-                        value='BA_R_NA'
+                        value='TOS_F'
                     ),
 
                     dash_player.DashPlayer(
@@ -476,16 +476,16 @@ def render_content(tab, df_angles, df2_angles, gradient_scheme2, frame_no, frame
         if tab == 'tab-2':
             df_angles = pd.read_json(df_angles)
             df2_angles = pd.read_json(df2_angles)
-            return render_datatable(df_angles, frame_no, mode='pixel',colormap=colormaps[gradient_scheme2]), \
+            return render_datatable(df_angles, frame_no, mode='pixel',colormap=gradient_scheme2), \
                    modal(df_angles, frame_no, index=1),\
-                   render_datatable(df2_angles, frame_no2, dtw_alignment[str(frame_no)], mode='pixel', colormap=colormaps[gradient_scheme2]), \
+                   render_datatable(df2_angles, frame_no2, dtw_alignment[str(frame_no)], mode='pixel', colormap=gradient_scheme2), \
                    modal(df2_angles, frame_no, index=2)
         elif tab == 'tab-1':
             df_angles = pd.read_json(df_angles)
             df2_angles = pd.read_json(df2_angles)
-            return render_datatable(df_angles, frame_no, mode='pixel',similarity ='velocity', colormap=colormaps[gradient_scheme2]), \
-                   modal(df_angles, frame_no, index=1,similarity='velocity'),\
-                   render_datatable(df2_angles, frame_no2, dtw_alignment[str(frame_no)], mode='pixel', similarity='velocity',colormap=colormaps[gradient_scheme2]), \
+            return render_datatable(df_angles, frame_no, mode='pixel',similarity ='velocity', colormap=gradient_scheme2), \
+                   modal(df_angles, frame_no, index=1, similarity='velocity'),\
+                   render_datatable(df2_angles, frame_no2, dtw_alignment[str(frame_no)], mode='pixel', similarity='velocity',colormap=gradient_scheme2), \
                    modal(df2_angles, frame_no2, dtw_alignment[str(frame_no)], index=2, similarity='velocity')
         else:
             return dash.no_update

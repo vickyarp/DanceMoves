@@ -8,6 +8,7 @@ def render_stick_figure_init(df):
     img_width_min = df.x[df.x != 0].min()
     img_height = round(df.y.max())
     # img_width = 400
+    # img_width = 400
     # img_height = 400
     scale_factor = 0.5
     # fig.add_layout_image(
@@ -86,25 +87,25 @@ def render_stick_figure(df, video, no_highlight=False):
     fig.layout.hoverdistance = 1  # ensures no "gaps" for selecting sparse data
     # fig.layout.plot_bgcolor='black'
     fig.layout.uirevision = video
-    fig.add_layout_image(
-        dict(
-            source="https://images.plot.ly/language-icons/api-home/python-logo.png",
-            xref="x",
-            yref="y",
-            x=0,
-            y=3,
-            sizex=2,
-            sizey=2,
-            sizing="stretch",
-            opacity=1,
-            layer="below")
-    )
-    # fig.add_layout_image(dict(source="assets/thumbnails/background.png"))
 
+    fig.layout.autosize = True
     img_width_min = df.x[df.x != 0].min()
     img_height = round(df.y.max())
     img_height_min = df.y[df.y != 0].min()
-
+    # Background in stick figure
+    # fig.add_layout_image(
+    #     dict(
+    #         source="assets/thumbnails/background.png",
+    #         x=round(img_width_min) / 4,
+    #         sizex=round(df.x.max()) ,
+    #         y=img_height_min,
+    #         sizey=img_height_min * 4,
+    #         xref="x",
+    #         yref="y",
+    #         opacity=1.0,
+    #         layer="below",
+    #         sizing="stretch", )
+    # )
     fig.update_xaxes(
         showgrid=False,
         scaleanchor='y',
@@ -114,7 +115,7 @@ def render_stick_figure(df, video, no_highlight=False):
         showgrid=False,
         range=(img_height + 20, img_height_min - 20)
     )
-
+    # fig.layout.config.edits = (dict({"legendPosition": True}))
     for body_segment, color in zip(BODY_SEGMENTS.items(), COLORS):
         h_color = color if no_highlight else 'gray'
         opacity = 1 if no_highlight else 0.6
