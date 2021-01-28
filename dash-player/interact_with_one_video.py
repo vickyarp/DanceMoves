@@ -158,7 +158,7 @@ page_1_layout = html.Div([
         },
         children=[
             html.Div(style={'min-height': '70vh'}, children=[
-                dcc.Tabs(id='table-tabs_b', value='tab-2', children=[
+                dcc.Tabs(id='table-tabs_b', value='tab-1', children=[
                     dcc.Tab(label='Frame Level', value='tab-1', style={'fontWeight': 'bold', 'height': '5vh'}),
                     dcc.Tab(label='Video Level', value='tab-2', style={'fontWeight': 'bold','height': '5vh'}),
                 ]),

@@ -43,7 +43,7 @@ def create_coordinate_df(points_with_confidence):
 similarity_layout = html.Div([
     html.A(html.Img(src=app.get_asset_url('logo.png'), style={'width': '300px', 'position': 'fixed','top': '-85px','left': '-40px'}), href="/"),
     dcc.Location(id='url', refresh=False, pathname='/page-2'),
-    html.H2('Visual Analysis of Dance Moves', style={'text-align': 'center'}),
+    html.H2('Visual Analysis of Dance Moves', style={'text-align': 'center', 'padding-top': '3rem', 'margin-bottom': '3rem'}),
     html.Br(),
     html.Div([
         dcc.Link(dbc.Button('Interact with one video', size="lg"), href="/page-1"),

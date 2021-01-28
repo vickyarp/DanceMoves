@@ -5,6 +5,7 @@ import pandas as pd
 import os
 from tslearn.metrics import dtw_path
 from utils import DATA_PATH, BODYPART_INDEX
+from keypoint_frames import compute_angle_vector as compute_angle_vector_new
 from missingpy import MissForest
 
 # %%
@@ -338,15 +339,40 @@ def overall_similarity(X_angles, Y_angles):
 
 # %%
 
+def create_angles_new(video, type='cosine', similarity='angle'):
+    newDF = pd.DataFrame(index=range(29))
+    i = 0
 
+    files = []
+    for file in sorted(os.listdir(DATA_PATH)):
+        if os.path.isfile(os.path.join(DATA_PATH, file)) and video in file:
+            files.append(file)
+
+    for data in files:
+        f = open(os.path.join(DATA_PATH, data), 'r')
+        data = json.load(f)
+
+        bodyvector1 = compute_angle_vector_new(data)
+        new_bodyvector = pd.DataFrame(bodyvector1)
+
+        # newDF['Frame: ',i]=new_bodyvector
+        newDF[i] = new_bodyvector
+        i += 1
+        f.close()
+        # print(bodyvector1)
+    if similarity == 'velocity':
+        newDF = create_velocity_df(newDF)
+    return newDF
+
+# %%
 
 def pose_query(video='TB_F_FB', pose='TB_F_FB_000000000043_keypoints.json'):
     # video_angles = create_angles(video)
-    video_angles = create_angles(video, type='degrees')
+    video_angles = create_angles_new(video, type='degrees')
     f = open(os.path.join(DATA_PATH, pose), 'r')
     data = json.load(f)
     f.close()
-    pose_angles = compute_angle_vector(data, type='degrees')
+    pose_angles = compute_angle_vector_new(data)
     pose_angles_ = pd.Series(pose_angles)
     df =  video_angles.sub(pose_angles_, axis='rows')
     columns = {}
