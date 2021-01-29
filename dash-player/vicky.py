@@ -29,7 +29,7 @@ app.layout = html.Div([
 
 
 index_page = html.Div([
-    html.H1('Visual Analysis of Dance Moves', style={'text-align': 'center'}),
+    html.H1('Visual Analysis of Dance Moves', style={'text-align': 'center', 'padding-top': '3rem', 'margin-bottom': '3rem'}),
     html.Img(src=app.get_asset_url('logo.png'), style={'width':328}),
     html.P('The goal of this project is to build a tool for the visual analysis of dance moves.', style={'text-align': 'center','fontSize': 26}),
     html.Hr(className="my-2"),
@@ -85,13 +85,14 @@ index_page = html.Div([
         ),
     html.Br(),
     html.Br(),
+    html.H4('Hierarchical Clustering:'),
     html.Div(
     [
         dbc.Button(
-            "Hierarchical clustering", id={"type": "fade-transition-button", "index": 1}, className="mb-3", style={'margin-right': '10px'}, n_clicks_timestamp=0,
+            "Angle Similarity", id={"type": "fade-transition-button", "index": 1}, className="mb-3", style={'margin-right': '10px'}, n_clicks_timestamp=0,
         ),
         dbc.Button(
-            "Hierarchical clustering", id={"type": "fade-transition-button", "index": 2}, className="mb-3", style={'margin-right': '10px'}, n_clicks_timestamp=0
+            "Velocity Similarity", id={"type": "fade-transition-button", "index": 2}, className="mb-3", style={'margin-right': '10px'}, n_clicks_timestamp=0
         ),
         dbc.Fade(
             dbc.Card(

@@ -199,7 +199,7 @@ similarity_layout = html.Div([
                         {'label': 'Light Green to Blue', 'value': 'Blue'},
                         {'label': 'Green', 'value': 'Green'}
                     ],
-                    value='Blue',
+                    value='Else',
                     labelStyle={'float': 'right', 'display': 'inline-block', 'margin-right': 10, 'fontWeight': 'bold'}
                 ),
                 html.Div(id='tabs-content'),

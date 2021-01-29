@@ -131,16 +131,17 @@ def heatmap_table_format(df, n_bins=4, columns='all', selected_rows=[], colormap
                 'backgroundColor': backgroundColor,
                 'color': color,
             })
-            # styles.append({
-            #     'if': {
-            #         'filter_query': (
-            #                 '{{{column}}} == 0'
-            #         ).format(column=column),
-            #         'column_id': column
-            #     },
-            #     'backgroundColor': 'white',
-            #     'color': color,
-            # })
+            styles.append({
+                'if': {
+                    'filter_query': (
+                            '{{{column}}} >= -0.45' +
+                            ' && {{{column}}} <= 0.45'
+                    ).format(column=column),
+                    'column_id': column
+                },
+                'backgroundColor': 'white',
+                'color': color,
+            })
         for row in selected_rows:
             styles.append({
                 'if': {
