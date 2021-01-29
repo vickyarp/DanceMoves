@@ -1,0 +1,17 @@
+.dash-spreadsheet .row {
+    flex-wrap: nowrap !important;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.dash-spreadsheet .dash-freeze-left {
+    max-width: 100%;
+}
+
+#table-tab2 p {
+    margin: 0;
+}
+
+#group-title {
+    transform: rotate(90deg);
+}
